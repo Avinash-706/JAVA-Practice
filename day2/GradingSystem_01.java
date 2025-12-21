@@ -7,6 +7,7 @@ public class GradingSystem_01 {
         System.out.print("Enter Marks : ");
         int marks = sc.nextInt();
         
+        // Grading System Using If Else Statements
         if   (marks >= 90 && marks <= 100)  System.out.print("Grade A");
         else if(marks >= 75 && marks < 90)  System.out.print("Grade B");
         else if(marks >= 60 && marks < 75)  System.out.print("Grade C");
