@@ -1,3 +1,4 @@
+package day6.while_loop;
 public class PrintNumberInRange {
 
     public static void printLoop1(int n1, int n2){
