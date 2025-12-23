@@ -13,5 +13,5 @@ public class ConditionalCheck {
             else                                 System.out.println(i);
         }
     }
-    
+
 }
