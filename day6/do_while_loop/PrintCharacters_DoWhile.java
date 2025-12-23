@@ -1,3 +1,4 @@
+package day6.do_while_loop;
 public class PrintCharacters_DoWhile {
     public static void printLoop1(char n1, char n2) {
         System.out.println("\n\nPrint :\t" + n1 + " to " + n2);
