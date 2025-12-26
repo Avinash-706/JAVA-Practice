@@ -1,0 +1,88 @@
+=============================
+TYPE CASTING
+ =============================
+
+ -----------------------------
+ INTRODUCTION
+  -----------------------------
+  -> Type Casting is the process of converting a value from one data type to another.
+  -> This is a common requirement in statically-typed programming languages like Java, C++, and C#.
+  
+  MAIN CATEGORIES:
+   1. PRIMITIVE CASTING: Converting between fundamental data types (like int, double, char).
+   2. NON-PRIMITIVE (OBJECT) CASTING: Converting between related class types (superclass and subclass).
+  
+
+ 
+ 1. PRIMITIVE TYPE CASTING
+    
+  -----------------------------
+  WIDENING CASTING (IMPLICIT)
+   -----------------------------
+   -> DEFINITION: The automatic conversion of a value from a smaller data type to a larger data type.
+   -> Also known as "Implicit Casting" or "Upcasting" in the context of primitives.
+   
+   KEY PROPERTIES:
+    ✅ This conversion is always SAFE, as there is no risk of data loss.
+    ✅ It is performed automatically by the compiler; no special syntax is needed.
+   
+   CONVERSION FLOW:
+    -> byte -> short -> int -> long -> float -> double
+    -> char -> int -> long -> float -> double
+   
+   EXAMPLE:
+    int myInt = 100;
+    double myDouble = myInt; // Automatic conversion from int to double
+  
+  -----------------------------
+  NARROWING CASTING (EXPLICIT)
+   -----------------------------
+    -> DEFINITION: The manual conversion of a value from a larger data type to a smaller data type.
+    -> Also known as "Explicit Casting" or "Downcasting" in the context of primitives.
+    
+    KEY PROPERTIES:
+     -> ❌ This conversion is potentially UNSAFE and can result in DATA LOSS or overflow if the value is too large for the target type.
+     -> ❌ It must be done MANUALLY by the programmer using cast syntax `(target_type)`.
+    
+    EXAMPLE:
+     double myDouble = 9.78;
+     int myInt = (int) myDouble; // Manual conversion from double to int
+                                 // The value of myInt will be 9 (fractional part is lost)
+
+
+ 2. NON-PRIMITIVE (OBJECT) TYPE CASTING
+
+  -> This involves converting an object of one class type to another within the same inheritance hierarchy.
+ 
+  -----------------------------
+  UPCASTING
+   -----------------------------
+   -> DEFINITION: The conversion of a subclass reference to a superclass reference.
+   
+   KEY PROPERTIES:
+    ✅ This is always SAFE and is done IMPLICITLY (automatically).
+    ✅ It is a form of generalization. The upcast object can only access the methods and variables defined in the superclass.
+   
+   EXAMPLE:
+    // Given: class Animal {} and class Dog extends Animal {}
+    
+    Dog myDog = new Dog();
+    Animal myAnimal = myDog; // Implicit upcasting from Dog to Animal
+   
+ 
+  -----------------------------
+  DOWNCASTING
+   -----------------------------
+   -> DEFINITION: The conversion of a superclass reference back to its original subclass reference.
+   
+   KEY PROPERTIES:
+    -> ❌ This is potentially UNSAFE. If the object being referenced is not actually an instance of the target subclass, a `ClassCastException` will be thrown at runtime.
+    -> ❌ It must be done EXPLICITLY by the programmer using cast syntax `(subclass_type)`.
+    -> It is often preceded by an `instanceof` check to ensure safety.
+   
+   EXAMPLE:
+    // Continuing from the upcasting example...
+    
+    if (myAnimal instanceof Dog) {
+      Dog anotherDog = (Dog) myAnimal; // Explicit downcasting from Animal to Dog
+    }
