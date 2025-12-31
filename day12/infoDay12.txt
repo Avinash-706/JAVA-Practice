@@ -1,0 +1,480 @@
+=============================
+GLOBAL & LOCAL MEMBERS (IN JAVA)
+ =============================
+
+ -----------------------------
+ CLASSIFICATION OF GLOBAL MEMBERS
+  -----------------------------
+  -> Global members are variables and methods declared directly inside a class,
+     but outside of any method, block, or constructor.
+  
+  They are broadly divided into two categories:
+  
+  1. STATIC MEMBERS (Class Members)
+     a. Static Variables
+     b. Static Methods
+     c. Static Blocks (Static Initializer)
+  
+  2. NON-STATIC MEMBERS (Instance Members)
+     a. Non-Static Variables (Instance Variables)
+     b. Non-Static Methods (Instance Methods)
+     c. Non-Static Blocks (Instance Initializer)
+     d. Constructors
+  
+
+ -----------------------------
+ 1. STATIC VARIABLES
+  -----------------------------
+  DEFINITION:
+   -> A variable declared inside the class area (global area) with the `static`
+      keyword.
+   -> It is a type of global variable that belongs to the CLASS itself, not to
+      any specific object (instance) of the class.
+  
+  PROPERTIES:
+   -> ✅ MEMORY: Stored in the "Class Static Area." Only one copy exists and is
+      shared among all instances of the class.
+   -> ✅ INITIALIZATION: Not required. They are automatically initialized to
+      their default values by the JVM.
+   -> ✅ SCOPE: Can be accessed from anywhere within the class and from outside
+      the class using the ClassName.
+  
+  DEFAULT VALUES:
+   -> byte, short, int, long:  0
+   -> float, double:           0.0
+   -> char:                    '\u0000' (the null character)
+   -> boolean:                 false
+   -> All object references:   null (e.g., String)
+  
+  VARIABLE SHADOWING (LOCAL vs. STATIC):
+   -> When a local variable and a static variable have the same name, the local
+      variable gets higher priority within its scope.
+   -> To access the static (global) variable in this case, you must use the
+      class name as a prefix.
+   -> SYNTAX: `ClassName.staticVariableName`
+  
+
+ -----------------------------
+ Q1: LOCAL vs. GLOBAL VARIABLES
+  -----------------------------
+   ==================================================================
+   |   FEATURE    |        LOCAL VARIABLE         |   GLOBAL VARIABLE    |
+   |--------------|-------------------------------|----------------------|
+   | DECLARATION  | Inside a method, constructor, | Inside a class, but  |
+   |              | or block.                     | outside any method.  |
+   |--------------|-------------------------------|----------------------|
+   | SCOPE        | Limited to the block it is    | Accessible throughout|
+   |              | declared in.                  | the entire class.    |
+   |--------------|-------------------------------|----------------------|
+   | MEMORY       | In the Stack Area when its    | Static: Class Area.  |
+   | ALLOCATION   | method is called.             | Non-Static: Heap Area|
+   |--------------|-------------------------------|----------------------|
+   | INITIALIZATION| ❌ MUST be initialized before | ✅ Gets a default    |
+   |              | use.                          | value automatically. |
+   |--------------|-------------------------------|----------------------|
+   | LIFETIME     | Exists only as long as its    | Exists as long as the|
+   |              | method is executing.          | class/object exists. |
+   ==================================================================
+  
+
+ -----------------------------
+ Q2: JVM MEMORY AREAS & EXECUTION FLOW
+  -----------------------------
+  CODE EXAMPLE:
+   public class StaticVariables {
+       static int a = 10;
+       static int b = a;
+       public static void main(String[] args) {
+           System.out.println("Main Start");
+           System.out.println(a);
+           test();
+           System.out.println("Main End");
+       }
+       public static void test() {
+           System.out.println("Test Start");
+           int a = 25;
+           System.out.println("Local: " + a);
+           System.out.println("Global: " + StaticVariables.a);
+           System.out.println("Test End");
+       }    
+   }
+  
+  JVM MEMORY AREAS EXPLAINED:
+   
+   1. CLASS STATIC AREA
+      -> When a class is loaded, the JVM allocates a dedicated memory space for it.
+      -> This area stores all STATIC members: static variables and methods.
+      -> Static contexts (like static methods) point here to access members.
+   
+   2. STACK AREA
+      -> Used for method execution in a LIFO (Last-In, First-Out) manner.
+      -> When a method is called, a "stack frame" is pushed onto the stack.
+      -> This frame holds all local variables for that method call.
+      -> When the method finishes, its stack frame is popped (removed).
+   
+   3. HEAP AREA
+      -> Used for storing objects and their non-static (instance) variables.
+      -> In this specific example, the Heap is NOT USED because no objects are created.
+  
+  EXECUTION FLOW & MEMORY DIAGRAM:
+   
+   STEP 1: CLASS LOADING
+    -> JVM loads `StaticVariables` class into the Class Static Area.
+       - `static int a = 10;` is stored.
+       - `static int b = 10;` is stored.
+       - `main()` and `test()` method definitions are stored.
+   
+   STEP 2: JVM CALLS main()
+    -> A stack frame for `main()` is pushed onto the Stack.
+   
+   STEP 3: Inside main()
+    -> Prints "Main Start".
+    -> Prints global `a` (10) as no local `a` exists.
+   
+   STEP 4: main() calls test()
+    -> A stack frame for `test()` is pushed on top of the `main()` frame.
+   
+   STEP 5: Inside test()
+    -> Prints "Test Start".
+    -> A NEW local variable `a = 25` is created inside the `test()` frame.
+    -> Prints local `a` (25).
+    -> Prints global `StaticVariables.a` (10).
+    -> Prints "Test End".
+   
+   STEP 6: test() finishes
+    -> The `test()` stack frame is popped. The local `a=25` is destroyed.
+   
+   STEP 7: Control returns to main()
+    -> Prints "Main End".
+   
+   STEP 8: main() finishes
+    -> The `main()` stack frame is popped. The stack is now empty. Program ends.
+  
+
+ -----------------------------
+ Q3: STATIC METHOD vs. STATIC BLOCK
+  -----------------------------
+   ========================================================================
+   |   FEATURE   |          STATIC METHOD           |      STATIC BLOCK      |
+   |-------------|----------------------------------|------------------------|
+   | PURPOSE     | To define a reusable class logic.| To perform a one-time  |
+   |             |                                  | setup on class load.   |
+   |-------------|----------------------------------|------------------------|
+   | INVOCATION  | Must be called EXPLICITLY by name| Executes AUTOMATICALLY |
+   |             | (e.g., `ClassName.myMethod()`).  | once, when the class   |
+   |             |                                  | is first loaded.       |
+   |-------------|----------------------------------|------------------------|
+   | EXECUTION   | Executes only when called.       | Executes BEFORE the    |
+   | ORDER       |                                  | `main` method.         |
+   |-------------|----------------------------------|------------------------|
+   | NAME        | Has a specific name.             | Has no name (just      |
+   |             |                                  | `static {}`).          |
+   |-------------|----------------------------------|------------------------|
+   | PARAMETERS  | ✅ Can accept parameters.        | ❌ Cannot.             |
+   |-------------|----------------------------------|------------------------|
+   | USE CASE    | Utility functions, main method.  | Initialize complex     |
+   |             |                                  | static variables.      |
+   ========================================================================
+
+
+ -----------------------------
+ Q4: PUBLIC CLASS & MAIN METHOD RULES
+  -----------------------------
+  
+  RULE 1: PUBLIC CLASS PER FILE
+   -> ✅ TRUE. A single Java source file (`.java`) can contain at most ONE `public`
+      class. The filename must match this public class name exactly.
+   -> You can have multiple non-public (default access) classes in the same file.
+  
+  RULE 2: LOCATION OF THE `main` METHOD
+   -> ❌ PARTIALLY FALSE. The `public static void main(String[] args)` method is
+      the JVM's entry point, but it does NOT have to be inside the `public` class.
+   -> Any class can have a `main` method. You tell the JVM which one to run.
+   
+   BEST PRACTICE:
+    -> It is a universal convention to place the `main` method inside the public
+       class to make the application's entry point easy to find.
+  
+
+ -----------------------------
+ Q5: OVERLOADING vs. OVERRIDING THE MAIN METHOD
+  -----------------------------
+  
+  CAN WE OVERLOAD THE `main` METHOD?
+   -> ✅ YES. You can overload `main`. This means having multiple methods named `main`
+      with different parameter lists.
+   -> However, the JVM will only ever call the `public static void main(String[] args)`
+      signature to start the program.
+  
+  CAN WE OVERRIDE THE `main` METHOD?
+   -> ❌ NO. You cannot override the `main` method because it is `static`.
+   -> Overriding applies to instance methods for runtime polymorphism. `static` methods
+      belong to the class and are handled at compile time (this is called method hiding).
+  
+
+ -----------------------------
+ Q6: USING NON-STATIC MEMBERS IN A STATIC CONTEXT
+  -----------------------------
+  -> You cannot directly access a non-static (instance) member from a static context.
+  
+  THE REASON (STATIC vs. INSTANCE):
+   -> ✅ STATIC CONTEXT: Belongs to the CLASS. It exists without any objects.
+   -> ❌ NON-STATIC CONTEXT: Belongs to an OBJECT. It only exists when an object is
+      created with the `new` keyword.
+   
+   THE CONFLICT:
+   -> A `static` method doesn't know WHICH object's instance variable to use, as there
+      could be many objects or none at all. This ambiguity is a compile-time error.
+  
+  THE SOLUTION: CREATE AN OBJECT
+   -> To access instance members from a static method, you must first create an object
+      to provide a specific instance to work with.
+  
+  
+ =============================
+ MEMBER ACCESS RULES
+  =============================
+  
+  -----------------------------
+  SUMMARY OF THE FOUR CASES
+   -----------------------------
+   -> Understanding how different contexts (static/non-static) can access different
+      types of members (static/non-static) is crucial.
+   
+   CODE EXAMPLE FOR ALL CASES:
+    public class AccessRules {
+        // Static member
+        static int staticVar = 10;
+        // Non-static member
+        int nonStaticVar = 20;
+        
+        // 1. Static Context
+        public static void staticMethod() {
+            // Case 1: Static member in Static context
+            System.out.println(staticVar);
+            System.out.println(AccessRules.staticVar);
+            
+            // Case 2: Non-static member in Static context
+            // System.out.println(nonStaticVar); // COMPILE ERROR!
+            AccessRules obj = new AccessRules();
+            System.out.println(obj.nonStaticVar); // Must use an object
+        }
+        
+        // 2. Non-Static Context
+        public void nonStaticMethod() {
+            // Case 3: Static member in Non-static context
+            System.out.println(staticVar);
+            System.out.println(AccessRules.staticVar);
+            System.out.println(this.staticVar); // Works, but is bad practice
+            
+            // Case 4: Non-static member in Non-static context
+            System.out.println(nonStaticVar);
+            System.out.println(this.nonStaticVar);
+        }
+    }
+   
+  -----------------------------
+  CASE 1: STATIC member inside a STATIC context
+   -----------------------------
+   HOW:
+    1. Directly
+       -> `staticVar`
+    2. Using the Class Name (Recommended for clarity)
+       -> `AccessRules.staticVar`
+    
+   WHY:
+    -> The static context (method) and the static member (variable) both
+       belong to the class and are loaded into the Class Static Area. They
+       exist on the same level and can see each other.
+   
+  -----------------------------
+  CASE 2: NON-STATIC member inside a STATIC context
+   -----------------------------
+   HOW:
+    1. Using an object reference (The Only Way)
+       -> `AccessRules obj = new AccessRules();`
+       -> `obj.nonStaticVar`
+    
+    FORBIDDEN:
+    -> Direct access (`nonStaticVar`) is a COMPILE-TIME ERROR.
+    
+   WHY:
+    -> The static context exists without any objects. It has no way of
+       knowing WHICH object's non-static member to access. You must create
+       an object to provide a specific instance.
+   
+  -----------------------------
+  CASE 3: STATIC member inside a NON-STATIC context
+   -----------------------------
+   HOW:
+    1. Directly
+       -> `staticVar`
+    2. Using the Class Name (Recommended for clarity)
+       -> `AccessRules.staticVar`
+    3. Using the `this` keyword (Discouraged)
+       -> `this.staticVar`
+       -> This works but is misleading, as it implies the static variable
+          belongs to the object instance, which is false.
+    
+   WHY:
+    -> Every object has a direct link to its class's static area, so a
+       non-static context can easily access any static members.
+   
+  -----------------------------
+  CASE 4: NON-STATIC member inside a NON-STATIC context
+   -----------------------------
+   HOW:
+    1. Directly
+       -> `nonStaticVar`
+    2. Using the `this` keyword (Useful for clarity and resolving shadowing)
+       -> `this.nonStaticVar`
+    
+   WHY:
+    -> The non-static context (method) is running on behalf of a specific
+       object. It can directly access other non-static members of that SAME
+       object.
+ 
+       
+ =============================
+ OBJECTS IN JAVA
+  =============================
+ 
+  -----------------------------
+  ACCESSING NON-STATIC MEMBERS
+   -----------------------------
+   -> We cannot use non-static members inside a static context directly or by
+      using the ClassName.
+   -> To use or store non-static members, we must create an OBJECT.
+   -> Object: An instance of a class.
+  
+  -----------------------------
+  CREATING AN OBJECT
+   -----------------------------
+   -> HOW TO CREATE: By using the `new` keyword.
+      SYNTAX: `new ClassName();`
+  
+   -> WHAT IS `new`?
+      - `new` is a keyword and a unary operator.
+      - It allocates memory in the HEAP for a new object.
+      - It returns the memory address of the newly created object.
+      - Each time `new` is used, a new and distinct object is created.
+  
+   -> STORING THE ADDRESS:
+      - `ClassName` acts as a non-primitive data type for a reference variable.
+      - This reference variable is used to store the address of the object.
+      - EXAMPLE: `ClassName myObject = new ClassName();`
+  
+  -----------------------------
+  STATIC vs. NON-STATIC: A PRACTICAL EXAMPLE
+   -----------------------------
+   NOTE: Every object is directly pointing towards its class's static area.
+   
+   CODE EXAMPLE:
+    public class DifferentObject {
+        String user_name;   // Non-static
+        static int a;       // Static
+        public static void main(String[] args) {
+            DifferentObject ref1 = new DifferentObject();
+            ref1.user_name = "Devansh";
+            ref1.a = 10;
+            DifferentObject ref2 = new DifferentObject();
+            ref2.user_name = "Vishnu";
+            ref2.a = 11;
+            DifferentObject ref3 = new DifferentObject();
+            ref3.user_name = "Mohit";
+            ref3.a = 12;
+            System.out.println("User 1: " + ref1.user_name + ", a=" + ref1.a);
+            System.out.println("User 2: " + ref2.user_name + ", a=" + ref2.a);
+            System.out.println("User 3: " + ref3.user_name + ", a=" + ref3.a);
+        }
+    }
+    
+   EXPLANATION:
+    -> NON-STATIC `user_name`: Each object (`ref1`, `ref2`, `ref3`) gets its own
+       separate copy of `user_name` in the Heap Area. Changing one does not
+       affect the others.
+    -> STATIC `a`: There is only ONE copy of the variable `a` stored in the Class
+       Static Area. All three objects (`ref1`, `ref2`, `ref3`) share and point
+       to this single copy.
+    -> When `ref1.a = 10;` runs, the shared `a` becomes 10.
+    -> When `ref2.a = 11;` runs, the SAME shared `a` is updated to 11.
+    -> When `ref3.a = 12;` runs, the SAME shared `a` is updated again to 12.
+   
+   PREDICTED OUTPUT:
+    User 1: Devansh, a=12
+    User 2: Vishnu, a=12
+    User 3: Mohit, a=12
+    
+    -> This happens because by the time the print statements are executed, the
+       single static variable `a` has been overwritten multiple times, and its
+       final value is 12. All references point to this final value.
+   
+  -----------------------------
+  ACCESSING STATIC MEMBERS FROM A STATIC CONTEXT
+   -----------------------------
+   There are three ways to access static members from within a static method:
+   
+   1. DIRECTLY
+      -> `myStaticVariable = 10;`
+   
+   2. WITH THE HELP OF THE CLASSNAME (Recommended for clarity)
+      -> `ClassName.myStaticVariable = 10;`
+   
+   3. WITH THE HELP OF AN OBJECT REFERENCE (Discouraged, can be confusing)
+      -> `myObject.myStaticVariable = 10;`
+ 
+ 
+  -----------------------------
+  THE 'this' KEYWORD IN JAVA
+   -----------------------------
+ 
+   INTRODUCTION & DEFINITION
+    -> `this` is a keyword in Java.
+    -> It is a non-static reference variable that is available in every non-static
+       method and constructor.
+    -> Its primary purpose is to store the memory address of the CURRENT object
+       (the object on which the method or constructor was invoked).
+    
+   
+   RULES & PROPERTIES
+    -> ✅ Can ONLY be used inside a non-static context (instance methods, instance
+       blocks, constructors).
+    -> ❌ CANNOT be used inside a static context (static methods, static blocks).
+       A static context belongs to the class, not an object, so there is no
+       "current object" for `this` to refer to.
+    
+   PRIMARY USE CASE: RESOLVING VARIABLE SHADOWING
+    PROBLEM: VARIABLE SHADOWING
+     -> This occurs when a local variable (like a method parameter or a variable
+        declared inside a method) has the SAME NAME as an instance (non-static)
+        variable.
+     -> Inside that method, the local variable "shadows" or hides the instance
+        variable.
+    
+    THE RULE:
+     -> When a non-static instance variable and a local variable have the same
+        name, the local variable is given higher priority by default.
+    
+    THE SOLUTION:
+     -> To disambiguate and refer to the instance variable, you must use the
+        `this` keyword.
+        - `variableName` refers to a local variable.
+        - `this.variableName` refers to the instance variable.
+    
+   
+   CODE EXAMPLE
+     public class Employee {
+         // Instance variable
+         String name;
+         
+         // Constructor with a parameter that shadows the instance variable
+         public Employee(String name) {
+             // 'this.name' refers to the instance variable
+             // 'name' refers to the local parameter
+             this.name = name;
+         }
+         
+         public void display() {
+             System.out.println("Employee Name: " + this.name);
+         }
+     }
