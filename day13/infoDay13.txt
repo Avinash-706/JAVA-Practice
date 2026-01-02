@@ -1,0 +1,348 @@
+=============================
+JAVA BLOCKS & CONSTRUCTORS
+ =============================
+
+ -----------------------------
+ 1. NON-STATIC BLOCK (IIB)
+  -----------------------------
+  
+  DEFINITION:
+   -> A block declared inside the class area (global area) WITHOUT the `static`
+      keyword.
+   -> Also known as the Instance Initializer Block (IIB).
+  
+  PROPERTIES:
+   -> ✅ EXECUTION: It gets executed AUTOMATICALLY whenever an object is created.
+   -> ✅ MULTIPLICITY: Runs once for *every* new object created.
+   -> ❌ RESTRICTIONS: It does not have:
+      - Access Modifiers (public, private, etc.)
+      - Return Type
+      - Name
+      - Formal Arguments
+   
+  SYNTAX:
+   class Example {
+       {
+           // Non-static block / IIB
+           System.out.println("Block logic here");
+       }
+   }
+
+
+ -----------------------------
+ 2. STATIC BLOCK vs. NON-STATIC BLOCK
+  -----------------------------
+   =======================================================================
+   |      FEATURE      |      STATIC BLOCK       |    NON-STATIC BLOCK   |
+   |-------------------|-------------------------|-----------------------|
+   | KEYWORD           | `static { }`            | `{ }` (No keyword)    |
+   |-------------------|-------------------------|-----------------------|
+   | ALSO KNOWN AS     | SIB (Static Init Block) | IIB (Instance Init)   |
+   |-------------------|-------------------------|-----------------------|
+   | MEMORY AREA       | Class Static Area       | Heap Area (part of    |
+   |                   |                         | object)               |
+   |-------------------|-------------------------|-----------------------|
+   | EXECUTION TIME    | During Class Loading    | During Object Creation|
+   |-------------------|-------------------------|-----------------------|
+   | EXECUTION COUNT   | ✅ Once per program     | ✅ Once per object    |
+   |                   | execution.              | created.              |
+   |-------------------|-------------------------|-----------------------|
+   | PURPOSE           | Initialize static vars. | Initialize instance   |
+   |                   |                         | vars / common logic.  |
+   =======================================================================
+
+
+ -----------------------------
+ 3. LOADING PROCESSES
+  -----------------------------
+
+  CLASS LOADING PROCESS:
+   -> Destination: Class Static Area.
+   -> Occurs when the program starts (before `main`).
+   -> Loads static variables, static methods, and executes Static Blocks.
+   
+  OBJECT LOADING PROCESS:
+   -> Destination: Heap Area.
+   -> Occurs when `new ClassName()` is encountered.
+   -> Loads instance variables and executes Constructor & IIBs.
+
+
+ -----------------------------
+ 4. CONSTRUCTORS
+  -----------------------------
+
+  DEFINITION:
+   -> A special type of non-static member used to initialize an object.
+   -> ✅ NAME: Must match the ClassName exactly.
+   -> ❌ RETURN TYPE: It does NOT have a return type (not even `void`).
+  
+  TYPES OF CONSTRUCTORS:
+   1. DEFAULT CONSTRUCTOR
+      -> If the programmer does NOT write any constructor, the JVM injects
+         a "No-Argument Constructor" automatically during compilation.
+      -> Syntax: `public ClassName() { super(); }`
+   
+   2. PARAMETERIZED CONSTRUCTOR
+      -> A constructor defined by the programmer that accepts formal arguments
+         to initialize fields with specific values.
+   
+   3. COPY CONSTRUCTOR
+      -> A constructor used to create a new object as a copy of an existing
+         object.
+
+
+ -----------------------------
+ 5. DETAILED CONSTRUCTOR TYPES
+  -----------------------------
+
+  OVERVIEW:
+   -> ✅ YES. Apart from the three mentioned earlier, there are technically
+      two nuances often categorized separately:
+      1. USER-DEFINED NO-ARGUMENT CONSTRUCTOR (Different from Default).
+      2. PRIVATE CONSTRUCTOR (Special access).
+
+  1. DEFAULT CONSTRUCTOR (JVM GENERATED)
+
+     DEFINITION:
+      -> A constructor injected by the compiler ONLY IF the programmer creates NO
+         constructors at all in the class.
+      -> It is invisible in the source code.
+     USE CASE:
+      -> Ensures every object is valid and has memory allocated, even if the
+         programmer forgot to define how to initialize it.
+      -> Initializes variables to default values (0, null, false).
+     EXAMPLE:
+      class Demo {
+          int x;
+          // No constructor written here.
+          // JVM adds: public Demo() { super(); }
+      }
+
+  2. NO-ARGUMENT CONSTRUCTOR (USER DEFINED)
+
+     DEFINITION:
+      -> A constructor explicitly written by the programmer that accepts NO
+         parameters.
+      -> Once you write this, the JVM stops adding the "Default Constructor."
+     USE CASE:
+      -> To initialize objects with specific "hardcoded" values rather than
+         JVM defaults (e.g., setting a default language to "English").
+     EXAMPLE:
+      class Bike {
+          String brand;
+          Bike() {
+              brand = "Honda"; // Hardcoded default
+          }
+      }
+
+  3. PARAMETERIZED CONSTRUCTOR
+
+     DEFINITION:
+      -> A constructor that accepts arguments (parameters).
+      -> It allows passing specific values during object creation.
+     USE CASE:
+      -> To create objects with dynamic/unique data.
+     EXAMPLE:
+      class Student {
+          Student(int i, String n) {
+              id = i;
+              name = n;
+          }
+      }
+
+  4. COPY CONSTRUCTOR
+
+     DEFINITION:
+      -> A constructor that takes an object of the SAME class as a parameter.
+      -> Unlike C++, Java does not create a default Copy Constructor; you must
+         write it yourself.
+     USE CASE:
+      -> To clone an object (create a duplicate).
+     EXAMPLE:
+      class Box {
+          Box(Box oldBox) {
+              this.length = oldBox.length; // Copying data
+          }
+      }
+
+  5. PRIVATE CONSTRUCTOR
+
+     DEFINITION:
+      -> A constructor declared with the `private` keyword.
+      -> It makes it impossible to create an object of the class from outside
+         the class.
+     USE CASE:
+      -> SINGLETON PATTERN: Ensuring only ONE instance of a class exists.
+      -> UTILITY CLASSES: Classes that only have static methods (like `Math`)
+         and shouldn't be instantiated.
+
+
+ -----------------------------
+ 6. CONSTRUCTOR EXECUTION FLOW
+  -----------------------------
+
+  THE "SECRET" INTERNAL STEPS:
+   -> When a constructor is called, it doesn't just run the user's code. It
+      follows a strict sequence (as shown in the whiteboard notes):
+   
+   STEP 1: CONSTRUCTOR CHAINING
+    -> `super()`: Calls the parent class constructor.
+    -> `this()`: Calls another constructor in the same class.
+    -> Note: Only one of these can exist as the first line.
+   
+   STEP 2: P.L.I (Pre-Loading Instructions)
+    -> Loads non-static variables into the object memory (Heap).
+   
+   STEP 3: I.I.B (Instance Initializer Block)
+    -> Executes any non-static blocks defined in the class.
+    -> *Crucial Note:* IIBs are actually executed *inside* the constructor
+       after the parent constructor returns but before the user code.
+   
+   STEP 4: U.W.S (User Written Statements)
+    -> Finally, the code written by the programmer inside the constructor
+       body is executed.
+
+
+ -----------------------------
+ 7. CONSTRUCTOR vs. METHOD
+  -----------------------------
+   =======================================================================
+   |      FEATURE      |       CONSTRUCTOR       |        METHOD         |
+   |-------------------|-------------------------|-----------------------|
+   | PURPOSE           | To initialize an object.| To perform a specific |
+   |                   |                         | operation/task.       |
+   |-------------------|-------------------------|-----------------------|
+   | NAME              | Must match Class Name.  | Can be any valid name.|
+   |-------------------|-------------------------|-----------------------|
+   | RETURN TYPE       | ❌ None (No void).      | ✅ Required (void or  |
+   |                   |                         | type).                |
+   |-------------------|-------------------------|-----------------------|
+   | INVOCATION        | Automatically (implicitly)| Explicitly called by|
+   |                   | via `new` keyword.      | programmer.           |
+   |-------------------|-------------------------|-----------------------|
+   | COMPILER ROLE     | Adds default if missing.| Does NOT add default. |
+   =======================================================================
+
+
+ -----------------------------
+ 8. EXECUTION FLOW ANALYSIS (FROM IMAGE)
+  -----------------------------
+
+  SCENARIO:
+   -> Based on the whiteboard diagram labelled "P3".
+   -> Class contains: Static Block, Non-Static Block (IIB), Constructor, Main.
+  
+  CODE REPRESENTATION:
+   class P3 {
+       static {
+           System.out.println("_static block"); // 1
+       }
+       
+       {
+           System.out.println("non-static block"); // 3
+       }
+       
+       P3() {
+           // Implicit super()
+           // Implicit PLI
+           // Implicit IIB call happens here
+           System.out.println("I am constr"); // 4
+       }
+       
+       public static void main(String[] args) {
+           System.out.println("main start"); // 2
+           P3 ref = new P3();
+           System.out.println("main end"); // 5
+       }
+   }
+  
+  STEP-BY-STEP EXECUTION (BUBBLE NUMBERS):
+  
+   [1] CLASS LOADING (Static Phase)
+       -> The JVM loads class `P3` into the Class Static Area.
+       -> The STATIC BLOCK is executed immediately.
+       -> OUTPUT: `_static block`
+   
+   [2] MAIN EXECUTION STARTS
+       -> `main()` is pushed to the Stack Area.
+       -> OUTPUT: `main start`
+   
+   [ ] OBJECT CREATION (`new P3()`) BEGINS
+       -> Control moves to the Constructor logic.
+       -> `super()` is called (Object class).
+       -> PLI loads instance variables.
+   
+   [3] IIB EXECUTION
+       -> Before the constructor body finishes, the IIB runs.
+       -> OUTPUT: `non-static block`
+   
+   [4] CONSTRUCTOR BODY (UWS)
+       -> User Written Statements in constructor run.
+       -> OUTPUT: `I am constr`
+       -> Object is fully created in Heap; address returned to `ref`.
+   
+   [5] MAIN RESUMES
+       -> Control returns to `main`.
+       -> OUTPUT: `main end`
+       -> Program terminates.
+
+
+ -----------------------------
+ 9. THIS CALLING STATEMENT
+  -----------------------------
+   DEFINITION:
+    -> `this()` is a constructor calling statement used to invoke another
+       constructor within the SAME class.
+    -> It is used for "Constructor Chaining" (reusing logic from other constructors).
+   
+   RULES:
+    -> ✅ MUST be the first statement in the constructor.
+    -> ✅ We can use at most `n-1` `this()` statements for `n` constructors
+       (at least one constructor must handle the actual initialization via `super()`).
+    -> ❌ NO PLI/IIB: If a constructor contains `this()`, it delegates the
+       initialization. Therefore, it does NOT execute PLI or IIB directly
+       (the called constructor will eventually trigger them).
+   
+   CODE EXAMPLE:
+    class Test {
+        Test() {
+            this(10); // Calls parameterized constructor
+            System.out.println("No-Arg Const");
+        }
+        
+        Test(int a) {
+            System.out.println("Param Const: " + a);
+        }
+        // Flow: new Test() -> calls Test(10) -> prints "Param..." -> prints "No-Arg..."
+    }
+ 
+ 
+ -----------------------------
+ 10. WHY CONSTRUCTOR RECURSION IS NOT POSSIBLE
+  -----------------------------
+   THE PROBLEM:
+    -> Constructor recursion occurs if Constructor A calls Constructor B, and
+       Constructor B calls Constructor A (or A calls A directly).
+   
+   WHY IT IS BLOCKED:
+    1. COMPILE TIME ERROR:
+       -> The compiler detects the cycle (Circular Dependency) and throws:
+          `Recursive constructor invocation`.
+       
+    2. EXECUTION LOGIC:
+       -> `this()` must be the first line. If recursion were allowed, the calls
+          would loop infinitely without ever reaching the `super()` call or the
+          rest of the body.
+       -> This would cause a `StackOverflowError` immediately, and the object
+          would NEVER be created or returned.
+    
+   EXAMPLE OF INVALID CODE:
+    class RecursionCheck {
+        RecursionCheck() {
+            this(10); // Calls int-arg constructor
+        }
+        
+        RecursionCheck(int i) {
+            this();   // ❌ ERROR: Calls no-arg constructor (Loop detected)
+        }
+    }
