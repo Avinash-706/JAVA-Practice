@@ -1,0 +1,75 @@
+=============================
+OOPS (OBJECT ORIENTED PROGRAMMING)
+ =============================
+
+ -----------------------------
+ 1. OVERVIEW & DEFINITION
+  -----------------------------
+  DEFINITION:
+   -> It is a design model or paradigm which helps the programmer to correlate
+      real-world scenarios into the programming world in the form of objects.
+  
+  CORE COMPONENTS:
+   -> ✅ STATES: Represented by Variables (Data fields).
+   -> ✅ BEHAVIORS: Represented by Methods (Functions/Logic).
+  
+  THE 4 PILLARS OF OOPS:
+   1. Encapsulation
+   2. Inheritance
+   3. Polymorphism
+   4. Abstraction
+
+
+ -----------------------------
+ 2. ENCAPSULATION
+  -----------------------------
+  DEFINITION:
+   -> The process of binding or wrapping states (variables) and behaviors
+      (methods) of an object together into a single unit (Class).
+  
+  PURPOSE:
+   -> To achieve Data Hiding.
+
+
+ -----------------------------
+ 3. DATA HIDING
+  -----------------------------
+  DEFINITION:
+   -> The process of avoiding direct access to data while providing controlled
+      access.
+  
+  HOW TO AVOID DIRECT ACCESS?
+   -> By using Access Modifiers.
+   -> ✅ KEYWORD: `private`
+   -> RULE: If we make any member `private`, we cannot use that variable
+      directly in a different class. It is directly accessible ONLY within the
+      SAME class.
+  
+  HOW TO PROVIDE CONTROLLED ACCESS?
+   -> By using Getter and Setter methods.
+
+
+ -----------------------------
+ 4. GETTERS & SETTERS
+  -----------------------------
+  PURPOSE:
+   -> To access `private` variables from outside the class in a secure way.
+  
+  GETTER METHOD:
+   -> ✅ USE: Used to GET or retrieve the value of a private variable.
+   -> typically has a return type matching the variable.
+  
+  SETTER METHOD:
+   -> ✅ USE: Used to SET or modify the value of a private variable.
+   -> Typically allows validation logic before assigning the value.
+
+
+ -----------------------------
+ 5. PUBLIC CLASS RULE
+  -----------------------------
+  RULE:
+   -> In a single source file, we can have ONLY ONE `public` class.
+  
+  CONSEQUENCE:
+   -> ❌ ERROR: If we define two or more `public` classes in the same file, it
+      will result in a Compile Time Error.
