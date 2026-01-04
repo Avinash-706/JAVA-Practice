@@ -1,0 +1,155 @@
+=============================
+SDLC (SOFTWARE DEVELOPMENT LIFE CYCLE)
+ =============================
+
+ -----------------------------
+ 1. OVERVIEW & DEFINITION
+  -----------------------------
+  DEFINITION:
+   -> SDLC is a systematic, step-by-step procedure used by the software
+      industry to design, develop, and test high-quality software.
+   -> It ensures that the software meets customer expectations, is completed
+      within time and cost estimates, and is maintainable.
+  
+  WHEN TO USE SDLC?
+   -> Whenever a new software project is initiated, or an existing software
+      requires major re-engineering.
+  
+  CONSEQUENCES OF IGNORING SDLC (RISKS):
+   -> ❌ COST OVERRUNS: Unclear investment estimation.
+   -> ❌ RESOURCE MISMANAGEMENT: Uncertainty about required team size/skills.
+   -> ❌ DOCUMENTATION GAPS: Lack of detailed requirement documents (SRS).
+   -> ❌ DELAYS: High probability of missing release deadlines.
+   -> ❌ QUALITY ISSUES: Higher bug rate due to lack of structured testing.
+
+
+ -----------------------------
+ 2. THE 7 STAGES OF SDLC
+  -----------------------------
+  
+  PHASE FLOW SUMMARY:
+   =================================================
+   |  STEP  |           PHASE NAME                 |
+   |--------|--------------------------------------|
+   |   1    | REQUIREMENT COLLECTION & ANALYSIS    |
+   |   2    | FEASIBILITY STUDY                    |
+   |   3    | DESIGN (HLD & LLD)                   |
+   |   4    | CODING (IMPLEMENTATION)              |
+   |   5    | TESTING                              |
+   |   6    | INSTALLATION (DEPLOYMENT)            |
+   |   7    | MAINTENANCE                          |
+   =================================================
+      |
+      V
+  
+  PHASE 1: REQUIREMENT COLLECTION & ANALYSIS
+   -> ROLE: Business Analyst (BA), Project Manager (PM).
+   -> INPUT: Inputs from client/customer/stakeholders.
+   -> ACTIVITY:
+      - Interacting with the customer to understand "What to build".
+      - Gathering specific business needs.
+   -> OUTPUT: SRS (Software Requirement Specification).
+   
+   DEEP DIVE: SRS CONTENTS
+    -> 1. FUNCTIONAL REQUIREMENTS (FR):
+       - Defines the specific behaviors or functions of the system.
+       - "What the system should do."
+       - Example: "The user must be able to log in with email and password."
+    -> 2. NON-FUNCTIONAL REQUIREMENTS (NFR):
+       - Defines the quality attributes or constraints.
+       - "How the system should perform."
+       - Example: Speed, Scalability, Security, Reliability (e.g., "Page
+         load time must be under 2 seconds").
+  
+  PHASE 2: FEASIBILITY STUDY
+   -> ROLE: Architects, Finance, HR, Project Managers.
+   -> ACTIVITY: Evaluating if the project is practically possible to build
+      with the available resources.
+   -> TYPES OF FEASIBILITY:
+      1. TECHNICAL: Do we have the technology/tools?
+      2. OPERATIONAL: Will it solve the user's problem?
+      3. ECONOMIC: Can we build it within budget?
+      4. SCHEDULE: Can we finish it by the deadline?
+      5. LEGAL: Does it comply with laws (GDPR, Copyright)?
+  
+  PHASE 3: DESIGN
+   -> ROLE: System Architects, Tech Leads.
+   -> INPUT: SRS Document.
+   -> ACTIVITY: Creating the blueprint/architecture of the system.
+   -> OUTPUT: DDS (Design Document Specification).
+   
+   CLASSIFICATION OF DESIGN:
+    ====================================================================
+    | FEATURE |          HLD (High-Level Design)        |        LLD (Low-Level Design)       |
+    |---------|-----------------------------------------|-------------------------------------|
+    | FOCUS   | Macro-level architecture.               | Micro-level logic.                  |
+    |---------|-----------------------------------------|-------------------------------------|
+    | CONTENT | Modules, Database Design, Tech Stack,   | Pseudocode, Class Diagrams, Methods,|
+    |         | Interface relationships.                | Error handling logic.               |
+    |---------|-----------------------------------------|-------------------------------------|
+    | AUDIENCE| Developers, Clients, Stakeholders.      | Developers (Coders).                |
+    ====================================================================
+  
+  PHASE 4: CODING (IMPLEMENTATION)
+   -> ROLE: Software Developers (Frontend/Backend).
+   -> INPUT: LLD Document.
+   -> ACTIVITY:
+      - Translating the design into actual source code.
+      - Adhering to coding standards (Naming conventions, Indentation).
+      - Performing Unit Testing (White Box Testing) to check individual
+        components.
+   -> OUTPUT: Source Code.
+   -> NOTE: This is typically the longest phase in the initial development.
+  
+  PHASE 5: TESTING
+   -> ROLE: Quality Assurance (QA) / Test Engineers.
+   -> INPUT: Developed Code / Build.
+   -> ACTIVITY:
+      - Verifying that the system works according to the SRS.
+      - Detecting defects (bugs) and reporting them to developers.
+   -> TESTING STRATEGIES:
+      1. FUNCTIONAL TESTING: Checking features against requirements.
+      2. SYSTEM TESTING: Testing the integrated system as a whole.
+      3. UAT (User Acceptance Testing): Done by the client before final
+         sign-off.
+  
+  PHASE 6: INSTALLATION (DEPLOYMENT)
+   -> ROLE: DevOps Engineers / Release Managers.
+   -> ACTIVITY:
+      - Moving the code to the Production Environment (Live Server).
+      - Making the software available to the end-users.
+   -> SCENARIOS: Can be a fresh install or an update (patch).
+  
+  PHASE 7: MAINTENANCE
+   -> ROLE: Support Team / Maintenance Engineers.
+   -> ACTIVITY: Taking care of the software after deployment.
+   -> TYPES OF MAINTENANCE:
+      1. CORRECTIVE: Fixing bugs found by users in production.
+      2. ADAPTIVE: Updating software to work with new OS/Hardware.
+      3. PERFECTIVE: Enhancing features based on user feedback.
+      4. PREVENTIVE: Code refactoring to prevent future issues.
+
+ -----------------------------
+ 3. SDLC MODELS (BRIEF OVERVIEW)
+  -----------------------------
+  -> Different projects require different approaches. Common models include:
+  
+  1. WATERFALL MODEL
+     -> Linear and sequential. You cannot go back to the previous phase. Best
+        for small projects with fixed requirements.
+  
+  2. SPIRAL MODEL
+     -> Combines iterative development with systematic risk analysis. Best for
+        large, high-risk projects.
+  
+  3. V-MODEL (Verification & Validation)
+     -> Development and testing happen in parallel. Good for projects requiring
+        high reliability.
+  
+  4. PROTOTYPE MODEL
+     -> A dummy version is built first to get customer feedback before developing
+        the final system.
+  
+  5. AGILE MODEL
+     -> Iterative and incremental. Focuses on flexibility, customer collaboration,
+        and rapid delivery. (Most popular in current industry).
