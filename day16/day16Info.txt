@@ -1,0 +1,322 @@
+=============================
+RELATIONSHIPS & INHERITANCE IN JAVA
+ =============================
+
+ -----------------------------
+ 1. TYPES OF RELATIONSHIPS
+  -----------------------------
+  -> In Java, classes communicate and interact with each other in two ways:
+  
+  1. HAS-A RELATIONSHIP (Association)
+     -> Represents "Ownership" or "Usage".
+     -> An instance of one class has a reference to an instance of another class.
+  
+  2. IS-A RELATIONSHIP (Inheritance)
+     -> Represents "Parent-Child" relationship.
+     -> A child class acquires properties of a parent class.
+
+  CODE COMPARISON (IS-A vs HAS-A):
+   
+   A. HAS-A EXAMPLE (Car HAS An Engine)
+      class Engine {
+          void start() { System.out.println("Engine Starts"); }
+      }
+      class Car {
+          Engine e = new Engine(); // HAS-A Relationship
+          void drive() {
+              e.start();
+              System.out.println("Car moving");
+          }
+      }
+
+   B. IS-A EXAMPLE (Dog IS An Animal)
+      class Animal {
+          void eat() { System.out.println("Eating..."); }
+      }
+      class Dog extends Animal { // IS-A Relationship
+          void bark() { System.out.println("Barking..."); }
+      }
+
+
+ -----------------------------
+ 2. HAS-A RELATIONSHIP DETAILS
+  -----------------------------
+  -> There are two forms of HAS-A relationships based on the strength of the bond.
+  
+  A. AGGREGATION (WEAK ASSOCIATION)
+     -> The Child object creates independently outside the Parent class.
+     -> If the Parent object is destroyed, the Child object STILL EXISTS.
+     -> Example: A `Car` and a `Driver`. If the Car is destroyed, the Driver
+        still exists.
+  
+  B. COMPOSITION (STRONG ASSOCIATION)
+     -> The Parent class creates and owns the Child object.
+     -> If the Parent object is destroyed, the Child object is ALSO DESTROYED.
+     -> Example: A `Car` and an `Engine`. If the Car is destroyed, the Engine
+        is effectively useless/destroyed in that context.
+  
+  COMPARISON:
+   ==================================================================
+   |      FEATURE       |      AGGREGATION      |     COMPOSITION    |
+   |--------------------|-----------------------|--------------------|
+   | STRENGTH           | Weak Bond.            | Strong Bond.       |
+   |--------------------|-----------------------|--------------------|
+   | DEPENDENCY         | Independent existence.| Dependent existence|
+   |--------------------|-----------------------|--------------------|
+   | KEYWORD (UML)      | Empty Diamond (<>)    | Filled Diamond (♦) |
+   ==================================================================
+
+
+ -----------------------------
+ 3. IS-A RELATIONSHIP (INHERITANCE)
+  -----------------------------
+  DEFINITION:
+   -> The process where a Child Class (Subclass) acquires the properties
+      (fields) and behaviors (methods) of a Parent Class (Superclass).
+   -> KEYWORDS: `extends` (for classes), `implements` (for interfaces).
+  
+  WHAT IS INHERITED?
+   -> ✅ Non-static variables and methods.
+   -> ✅ Static variables and methods (Accessible, but not polymorphic).
+  
+  WHAT IS NOT INHERITED?
+   -> ❌ Constructors.
+   -> ❌ Static Blocks (SIB).
+   -> ❌ Instance Initializer Blocks (IIB).
+  
+
+ -----------------------------
+ 4. INHERITING STATIC MEMBERS (SCENARIO 1)
+  -----------------------------
+  -> Can we inherit static members? ✅ YES.
+  -> However, static members belong to the class, not the object.
+  
+  LOADING RULE:
+   -> When a Child class is accessed, the JVM first loads the PARENT Class
+      (if not already loaded), executes Parent SIB, then loads the CHILD Class
+      and executes Child SIB.
+  
+  CODE EXAMPLE:
+   class Father {
+       static int a = 10;
+       public static void test() { System.out.println("Father static method"); }
+       static { System.out.println("SIB Father class"); }
+   }
+   class Son extends Father {
+       static int b = 20;
+       public static void demo() { System.out.println("Son static method"); }  
+       static { System.out.println("SIB Son class"); }
+   }
+   public class Inheritance2 {
+       static { System.out.println("SIB Driver Class"); }
+       public static void main(String[] args) {
+           System.out.println("Main Start");
+           // Example 2 execution
+           System.out.println(Father.a);
+           Father.test();
+           System.out.println(Son.a); // Accessing Parent var via Child
+           System.out.println(Son.b);
+           Son.demo();
+       }
+   }
+  
+  EXECUTION FLOW & OUTPUT:
+   1. JVM loads `Inheritance2` -> Prints "SIB Driver Class".
+   2. `main` starts -> Prints "Main Start".
+   3. `Father.a` accessed -> JVM loads `Father` -> Prints "SIB Father class".
+      -> Prints `10`.
+   4. `Father.test()` -> Prints "Father static method".
+   5. `Son.a` accessed -> JVM loads `Son` -> Prints "SIB Son class".
+      -> Prints `10` (Inherited from Father).
+   6. `Son.b` accessed -> Prints `20`.
+   7. `Son.demo()` -> Prints "Son static method".
+
+
+ -----------------------------
+ 5. INHERITING NON-STATIC MEMBERS (SCENARIO 2)
+  -----------------------------
+  -> Can we inherit non-static members? ✅ YES.
+  -> The memory is allocated when the Child Object is created.
+  
+  CODE EXAMPLE:
+   class Father {
+       public Father() { System.out.println("Father cons"); }
+       static { System.out.println("SIB Father"); }
+       { System.out.println("IIB Father"); }
+   }
+   class Son extends Father {
+       public Son() {
+           super(); // Implicit or Explicit
+           System.out.println("Son cons");
+       }
+       { System.out.println("IIB Son"); }
+       static { System.out.println("SIB Son"); }
+   }
+   public class P2 {
+       static { System.out.println("SIB Driver"); }
+       public static void main(String[] args) {
+           System.out.println("Main Start");
+           Son ref = new Son();
+       }
+   }
+
+  EXECUTION FLOW (TABLE FORMAT):
+   ========================================================================
+   | STEP |       ACTION / CONTEXT        |           OUTPUT              |
+   |------|-------------------------------|-------------------------------|
+   |  1   | Load `P2` Class               | SIB Driver                    |
+   |------|-------------------------------|-------------------------------|
+   |  2   | `main` method starts          | Main Start                    |
+   |------|-------------------------------|-------------------------------|
+   |  3   | `new Son()` encountered       | (Classes must load first...)  |
+   |------|-------------------------------|-------------------------------|
+   |  4   | Load `Father` (Parent)        | SIB Father                    |
+   |------|-------------------------------|-------------------------------|
+   |  5   | Load `Son` (Child)            | SIB Son                       |
+   |------|-------------------------------|-------------------------------|
+   |  6   | `Son` Constructor Called      | (Control enters Constructor)  |
+   |------|-------------------------------|-------------------------------|
+   |  7   | `super()` executes            | (Control goes to Father Const)|
+   |------|-------------------------------|-------------------------------|
+   |  8   | `Father` IIB executes         | IIB Father                    |
+   |------|-------------------------------|-------------------------------|
+   |  9   | `Father` Constructor Body     | Father cons                   |
+   |------|-------------------------------|-------------------------------|
+   |  10  | Control returns to `Son`      | (Back to Son Constructor)     |
+   |------|-------------------------------|-------------------------------|
+   |  11  | `Son` IIB executes            | IIB Son                       |
+   |------|-------------------------------|-------------------------------|
+   |  12  | `Son` Constructor Body        | Son cons                      |
+   ========================================================================
+
+  MEMORY DIAGRAM (CLASS AREA & HEAP AREA):
+   
+   1. CLASS STATIC AREA (Loaded First)
+   ==================================================================
+   |   CLASS NAME   |                 CONTENTS                      |
+   |----------------|-----------------------------------------------|
+   | Father.class   | static int a, test(), SIB (Executed Step 4)   |
+   | Son.class      | static int b, demo(), SIB (Executed Step 5)   |
+   ==================================================================
+
+   2. HEAP AREA (Object Creation: `new Son()`)
+   -> The Object is created, but initialization flows BOTTOM-TO-TOP (Stack)
+      and execution flows TOP-TO-BOTTOM (Constructors).
+      
+   ==================================================================
+   |                     SON OBJECT MEMORY                          |
+   |================================================================|
+   | [ HEADER ]                                                     |
+   |----------------------------------------------------------------|
+   | [ SUPER (Parent Scope) ]                                       |
+   |  -> Father's Instance Vars (Initialized Step 8)                |
+   |  -> Context linked via `super` keyword                         |
+   |----------------------------------------------------------------|
+   | [ THIS (Child Scope) ]                                         |
+   |  -> Son's Instance Vars (Initialized Step 11)                  |
+   |  -> Context linked via `this` keyword                          |
+   ==================================================================
+   
+   FLOW EXPLANATION:
+   1. The `super()` call moves control UP to the Father's context.
+   2. Father's IIB & Constructor run first (Top of the chain).
+   3. Control returns DOWN to Son's context.
+   4. Son's IIB & Constructor run last.
+
+
+ -----------------------------
+ 6. SUPER() CALLING STATEMENT
+  -----------------------------
+  DEFINITION:
+   -> `super()` is a constructor calling statement used to call the constructor
+      of the Super Class (Parent).
+  
+  RULES:
+   1. ✅ LOCATION: Must be the FIRST statement inside a constructor.
+   2. ✅ DEFAULT: If the programmer does not write `super()` or `this()`, the
+      compiler AUTOMATICALLY inserts `super()` (no-argument) in the first line.
+   3. ✅ EXCLUSIVITY: We cannot use `super()` and `this()` in the same
+      constructor. Only one can exist.
+   4. ✅ MANDATORY: Every constructor (except `Object` class) must call a
+      parent constructor to ensure the parent is initialized.
+  
+  OBJECT CLASS:
+   -> The `Object` class is the root (super-most) class in Java.
+   -> It is the only class that does not have a super class.
+
+  SUPER() vs THIS():
+   ===================================================================
+   |      FEATURE      |      super()          |       this()        |
+   |-------------------|-----------------------|---------------------|
+   | DESTINATION       | Parent Class Const.   | Same Class Const.   |
+   |-------------------|-----------------------|---------------------|
+   | PURPOSE           | Initialize Parent.    | Constructor Chaining|
+   |-------------------|-----------------------|---------------------|
+   | CO-EXISTENCE      | ❌ Cannot be together.| ❌ Cannot be together|
+   |-------------------|-----------------------|---------------------|
+   | DEFAULT ADDITION  | ✅ Yes (if missing).  | ❌ No.              |
+   ===================================================================
+
+  WHY CAN'T `this()` AND `super()` BE TOGETHER?
+   -> REASON: Both `this()` and `super()` are mandated to be the **FIRST
+      STATEMENT** in a constructor body.
+   -> LOGIC: You cannot have two "first" lines. The compiler will throw an
+      error because one of them would inevitably be on the second line.
+
+
+ -----------------------------
+ 7. TYPES OF INHERITANCE
+  -----------------------------
+  
+  1. SINGLE LEVEL INHERITANCE
+     -> One Subclass inherits from One Superclass.
+     -> Relationship: A -> B
+     CODE:
+      class A { void m1(){...} }
+      class B extends A { void m2(){...} }
+  
+  2. MULTI-LEVEL INHERITANCE
+     -> A chain of inheritance where a class extends a child class.
+     -> Relationship: A -> B -> C (C is child of B, B is child of A).
+     CODE:
+      class A { }
+      class B extends A { }
+      class C extends B { }
+  
+  3. HIERARCHICAL INHERITANCE
+     -> One Superclass is inherited by multiple Subclasses.
+     -> Relationship: A -> B, A -> C, A -> D.
+     CODE:
+      class A { }
+      class B extends A { }
+      class C extends A { }
+  
+  4. MULTIPLE INHERITANCE (VIA INTERFACE)
+     -> One Subclass inherits from multiple Superclasses.
+     -> Relationship: A -> C, B -> C.
+     -> JAVA STATUS: ❌ Not supported through Classes (Diamond Problem).
+     -> SOLUTION: ✅ Supported via INTERFACES.
+     
+     THE DIAMOND PROBLEM:
+      -> If Class C extends both Class A and Class B, and both A and B have a
+         method `void display()` with specific logic.
+      -> When Class C calls `display()`, the compiler gets confused: "Which
+         parent's logic should I use?"
+     
+     CODE (USING INTERFACE):
+      interface A { void show(); }
+      interface B { void show(); }
+      class C implements A, B {
+          public void show() {
+              System.out.println("Solved");
+          }
+      }
+  
+  5. HYBRID INHERITANCE
+     -> A combination of any two or more types of inheritance.
+     -> Example: Single + Hierarchical.
+     CODE:
+      class A { }              // Parent
+      class B extends A { }    // Single (A->B)
+      class C extends A { }    // Hierarchical (A->B, A->C)
+      class D extends B { }    // Multi-level (A->B->D)
