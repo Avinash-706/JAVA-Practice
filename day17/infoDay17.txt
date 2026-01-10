@@ -1,0 +1,367 @@
+=============================
+POLYMORPHISM & TYPE CASTING
+ =============================
+
+ -----------------------------
+ 1. THE DIAMOND PROBLEM (MULTIPLE INHERITANCE AMBIGUITY)
+  -----------------------------
+  DEFINITION:
+   -> The Diamond Problem is an ambiguity that arises in Multiple Inheritance
+      when a class extends two parent classes that have a common method with
+      the same name but different implementations.
+  
+  THE SCENARIO:
+      Class A (has method m1)
+        /   \
+   Class B   Class C  (Both override m1)
+        \   /
+       Class D (Extends B & C) -> calls m1() -> ???
+  
+  WHY IS IT CALLED "DIAMOND"?
+   -> The inheritance diagram looks like a diamond shape.
+  
+  WHY JAVA DOES NOT SUPPORT MULTIPLE CLASS INHERITANCE?
+   -> Java blocks `class D extends B, C` to avoid these confusions:
+   
+   1. AMBIGUITY IN METHOD CALL (The Main Issue)
+      -> Which parent's logic to execute? B's or C's?
+   
+   2. CONFUSION IN CLASS LOADING
+      -> Which class should be loaded first into the Static Area?
+   
+   3. CONFUSION IN OBJECT LOADING
+      -> How should the memory be structured in the Heap? Should we keep two
+         copies of variables from Class A (via B and C)?
+  
+  SOLUTION IN JAVA (INTERFACES):
+   -> Java solves this using INTERFACES. Interfaces can have default methods
+      (Java 8+), and the implementing class MUST resolve the ambiguity manually.
+
+  CODE EXAMPLE: THE PROBLEM (CONCEPTUAL)
+   class B { void show() { System.out.println("B"); } }
+   class C { void show() { System.out.println("C"); } }
+   
+   // ❌ COMPILE TIME ERROR
+   // class D extends B, C {
+   //    void test() {
+   //        show(); // AMBIGUITY: Calling B's show() or C's show()?
+   //    }
+   // }
+
+  CODE EXAMPLE: THE SOLUTION (USING INTERFACES)
+   interface Left {
+       default void display() { System.out.println("Left Logic"); }
+   }
+   
+   interface Right {
+       default void display() { System.out.println("Right Logic"); }
+   }
+   
+   class Center implements Left, Right {
+       // Compiler forces us to override 'display' to solve ambiguity
+       @Override
+       public void display() {
+           System.out.println("Resolving Conflict...");
+           // We can choose one, both, or write new logic
+           Left.super.display();  // Explicitly call Left
+           Right.super.display(); // Explicitly call Right
+       }
+   }
+   
+   class Main {
+       public static void main(String[] args) {
+           Center c = new Center();
+           c.display();
+       }
+   }
+
+
+ -----------------------------
+ 2. TYPE CASTING IN JAVA
+  -----------------------------
+  DEFINITION:
+   -> The process of converting one data type (or reference type) into another.
+   -> In OOP, it relates to converting between Parent and Child references.
+  
+  A. UPCASTING (GENERALIZATION)
+     -> Converting a Subclass reference to a Superclass reference.
+     -> HAPPENS: Automatically (Implicitly).
+     -> ACCESS: You can access ONLY members present in the Superclass.
+     -> SYNTAX: `Parent ref = new Child();`
+     -> USE CASE: To achieve Polymorphism (writing generic code).
+  
+  B. DOWNCASTING (SPECIALIZATION)
+     -> Converting a Superclass reference back to a Subclass reference.
+     -> HAPPENS: Manually (Explicitly) - Programmer must force it.
+     -> ACCESS: You can access members of the Subclass + Superclass.
+     -> SYNTAX: `Child ref = (Child) parentRef;`
+     -> RISK: Can throw `ClassCastException` if not done carefully.
+
+  CODE EXAMPLE (UPCASTING & DOWNCASTING):
+   class Apple {
+       void basic() { System.out.println("Generic Apple"); }
+   }
+   class GreenApple extends Apple {
+       void color() { System.out.println("Green Color"); }
+   }
+   
+   class Test {
+       public static void main(String[] args) {
+           // 1. UPCASTING (Child to Parent)
+           Apple a = new GreenApple();
+           a.basic();    // ✅ Allowed
+           // a.color(); // ❌ Error: Parent ref can't see Child method
+           
+           // 2. DOWNCASTING (Parent to Child)
+           GreenApple g = (GreenApple) a; // Explicit Cast
+           g.basic();    // ✅ Allowed
+           g.color();    // ✅ Allowed (Now visible)
+       }
+   }
+
+
+ -----------------------------
+ 3. CLASS CAST EXCEPTION
+  -----------------------------
+  THE SCENARIO:
+   Father ref1 = new Father();   // 1. Created pure Father object
+   Son ref2 = (Son) ref1;        // 2. Trying to force it into Son reference
+   // RESULT: ❌ ClassCastException
+  
+  THE REASON (MEMORY PERSPECTIVE):
+   -> When `new Father()` is executed, JVM allocates memory ONLY for Father's
+      members (e.g., `house`).
+   -> The `Son` class might have extra members (e.g., `bike`).
+   -> If we allow `Son ref2 = ref1`, then `ref2` expects to find a `bike`.
+   -> But the object in memory is just a Father; it has NO `bike`.
+   -> To prevent accessing non-existent memory, Java throws `ClassCastException`.
+  
+  RULE:
+   -> You can only Downcast if the underlying object is ACTUALLY an instance
+      of the Child class (or was created via Upcasting).
+   
+  SAFE DOWNCASTING (THE MISSING TOPIC: instanceof):
+   -> Always check before casting using `instanceof`.
+  
+  CODE EXAMPLE (EXCEPTION & FIX):
+   class Parent {}
+   class Child extends Parent {}
+   
+   public class CastTest {
+       public static void main(String[] args) {
+           Parent p = new Parent(); // Only Parent memory exists
+           
+           // UNSAFE CAST
+           // Child c = (Child) p; // ❌ Throws ClassCastException
+           
+           // SAFE CAST
+           if (p instanceof Child) {
+               Child c = (Child) p;
+               System.out.println("Cast Successful");
+           } else {
+               System.out.println("Cast Failed: Object is not Child");
+           }
+       }
+   }
+
+
+ -----------------------------
+ 4. POLYMORPHISM
+  -----------------------------
+  DEFINITION:
+   -> Derived from Greek: Poly (Many) + Morphs (Forms).
+   -> The ability of an object or reference to take multiple forms.
+   -> "One name, different behaviors."
+  
+  REAL WORLD EXAMPLE:
+   -> A "Person" behaves differently in different contexts:
+      - In Office -> Behavior: Employee.
+      - At Home -> Behavior: Father/Husband.
+      - In Shop -> Behavior: Customer.
+  
+  TYPES OF POLYMORPHISM:
+   1. Compile-time Polymorphism (Static Binding).
+   2. Runtime Polymorphism (Dynamic Binding).
+
+
+ -----------------------------
+ 5. COMPILE-TIME POLYMORPHISM (STATIC BINDING)
+  -----------------------------
+  DEFINITION:
+   -> The method/variable to be executed is decided by the COMPILER.
+   -> Decision is based on the REFERENCE TYPE.
+  
+  WAYS TO ACHIEVE:
+   1. Method Overloading.
+   2. Constructor Overloading.
+   3. Variable Shadowing.
+   4. Method Shadowing (Static Method Hiding).
+  
+  A. VARIABLE SHADOWING
+     -> Occurs when Child class and Parent class have a variable with the
+        SAME NAME.
+     -> RULE: Variables are NOT polymorphic. The variable accessed depends
+        on the Reference Variable, not the Object.
+     
+     WHY USE IT?
+     -> It is generally discouraged in production code as it causes confusion.
+     -> However, it is used when the Child class needs a variable with the
+        same name but a different data type or access level.
+  
+  B. METHOD SHADOWING (STATIC METHODS)
+     -> Occurs when Child and Parent have a static method with the exact
+        same signature.
+     -> This is NOT overriding. This is "Hiding".
+     -> The Compiler binds the call based on the Class Name (Reference Type).
+
+  CODE EXAMPLE (VARIABLE & METHOD SHADOWING):
+   class A {
+       int x = 10;
+       static void show() { System.out.println("Static A"); }
+   }
+   class B extends A {
+       int x = 20; // Shadowing Variable
+       static void show() { System.out.println("Static B"); } // Shadowing Method
+   }
+   
+   class Main {
+       public static void main(String[] args) {
+           A ref = new B(); // Upcasting
+           
+           System.out.println(ref.x); // OUTPUT: 10 (Ref is A)
+           ref.show();                // OUTPUT: Static A (Ref is A)
+       }
+   }
+
+
+ -----------------------------
+ 6. RUNTIME POLYMORPHISM (DYNAMIC BINDING)
+  -----------------------------
+  DEFINITION:
+   -> The method to be executed is decided by the JVM at RUNTIME.
+   -> Decision is based on the ACTUAL OBJECT (Heap Memory).
+  
+  WAY TO ACHIEVE:
+   -> Method Overriding.
+  
+  METHOD OVERRIDING RULES:
+   -> ✅ Same Name.
+   -> ✅ Same Arguments.
+   -> ✅ Same Return Type (or Covariant Type).
+   -> ✅ Access Modifier must be Same or Wider (e.g., protected -> public).
+   -> ❌ Cannot override Static, Final, or Private methods.
+  
+  THE @Override ANNOTATION:
+   -> It is an optional but recommended validator.
+   -> It tells the compiler: "Check if I am actually overriding a parent method."
+   -> If the spelling is wrong or arguments don't match, it gives a Compile Error.
+
+  CODE EXAMPLE (OVERRIDING):
+   class Animal {
+       void sound() { System.out.println("Animal Sound"); }
+   }
+   class Dog extends Animal {
+       @Override // Annotation checks validity
+       void sound() { System.out.println("Bow Wow"); }
+   }
+   
+   class Main {
+       public static void main(String[] args) {
+           Animal a = new Dog();
+           a.sound(); // OUTPUT: Bow Wow (Decision based on Object Dog)
+       }
+   }
+
+
+ -----------------------------
+ 7. COMPARISON & EXECUTION FLOW (CRITICAL)
+  -----------------------------
+  
+  CODE SCENARIO:
+   class Father {
+       String name = "Father Var";       // Non-static Var
+       static void staticTest() {        // Static Method
+           System.out.println("Father Static");
+       }
+       void nonStaticTest() {            // Non-Static Method
+           System.out.println("Father Non-Static");
+       }
+   }
+   
+   class Son extends Father {
+       String name = "Son Var";          // Variable Shadowing
+       static void staticTest() {        // Method Shadowing
+           System.out.println("Son Static");
+       }
+       @Override
+       void nonStaticTest() {            // Method Overriding
+           System.out.println("Son Non-Static");
+       }
+   }
+   
+   public class Test {
+       public static void main(String[] args) {
+           // UPCASTING
+           Father ref = new Son(); 
+           
+           // 1. VARIABLE SHADOWING (Compile-time / Reference based)
+           System.out.println(ref.name); 
+           // OUTPUT: "Father Var"
+           
+           // 2. METHOD SHADOWING (Compile-time / Reference based)
+           ref.staticTest();
+           // OUTPUT: "Father Static"
+           
+           // 3. METHOD OVERRIDING (Runtime / Object based)
+           ref.nonStaticTest();
+           // OUTPUT: "Son Non-Static"
+       }
+   }
+
+  SUMMARY TABLE:
+   ========================================================================
+   |      FEATURE       |    BINDING TYPE    |    DECIDING FACTOR         |
+   |--------------------|--------------------|----------------------------|
+   | Variables          | Static (Compile)   | Reference Variable Type    |
+   |--------------------|--------------------|----------------------------|
+   | Static Methods     | Static (Compile)   | Reference Variable Type    |
+   |--------------------|--------------------|----------------------------|
+   | Overloaded Methods | Static (Compile)   | Reference & Arguments      |
+   |--------------------|--------------------|----------------------------|
+   | Overridden Methods | Dynamic (Runtime)  | Actual Object (New ...)    |
+   ========================================================================
+
+
+ -----------------------------
+ 8. INTERVIEW & PLACEMENT POINTS
+  -----------------------------
+  
+  Q1: CAN WE OVERRIDE STATIC METHODS?
+   -> NO. Static methods are bound to the class, not the object. If you define
+      the same method in Child, it is "Method Hiding," not overriding.
+  
+  Q2: CAN WE OVERRIDE PRIVATE METHODS?
+   -> NO. Private methods are not visible to the child class, so the child
+      cannot override them.
+  
+  Q3: CAN WE OVERRIDE THE MAIN METHOD?
+   -> NO. `main` is static. You can define another `main` in the child, but
+      it will be treated as Method Hiding.
+  
+  Q4: WHAT IS COVARIANT RETURN TYPE? (Advanced)
+   -> Before Java 5, the return type had to be exactly the same.
+   -> Since Java 5, the return type of the overriding method can be a SUBCLASS
+      of the parent method's return type.
+      
+      CODE EXAMPLE (COVARIANT):
+      class A {
+          A get() { return this; }
+      }
+      class B extends A {
+          @Override
+          B get() { return this; } // Valid: B is subclass of A
+      }
+  
+  Q5: DOES CONSTRUCTOR SUPPORT POLYMORPHISM?
+   -> Constructor Overloading? YES (Compile-time).
+   -> Constructor Overriding? NO (Constructors are not inherited).
