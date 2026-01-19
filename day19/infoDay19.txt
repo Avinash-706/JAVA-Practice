@@ -1,0 +1,139 @@
+=============================
+INTERFACE IN JAVA
+ =============================
+
+ -----------------------------
+ 1. OVERVIEW & DEFINITION
+  -----------------------------
+  DEFINITION:
+   -> An Interface is a keyword (`interface`) used to create a non-primitive
+      data type in Java.
+   -> It acts as a blueprint for a class.
+  
+  PURPOSE:
+   -> ✅ 100% ABSTRACTION: Traditionally, it contains only abstract methods
+      (prior to Java 8).
+   -> ✅ MULTIPLE INHERITANCE: Java allows a class to implement multiple
+      interfaces, solving the "Diamond Problem" found in classes.
+
+
+ -----------------------------
+ 2. KEY PROPERTIES & RULES
+  -----------------------------
+  
+  IMPLICIT MODIFIERS (THE "HIDDEN" RULES):
+   -> You don't need to type these keywords; the compiler adds them automatically.
+  
+   1. VARIABLES:
+      -> Are implicitly `public`, `static`, and `final`.
+      -> IMPLICATION: They are constants. You cannot re-initialize them.
+      -> ACCESS: `InterfaceName.variableName`
+  
+   2. METHODS (NON-STATIC):
+      -> Are implicitly `public` and `abstract`.
+      -> IMPLICATION: They have no body and must be overridden by the
+         implementing class.
+  
+  RESTRICTIONS (WHAT YOU CANNOT DO):
+   -> ❌ OBJECT CREATION: You cannot create an instance (`new Interface()`).
+   -> ❌ CONSTRUCTORS: Interfaces do not have constructors.
+   -> ❌ BLOCKS: You cannot create Static Initializer Blocks (SIB) or
+      Instance Initializer Blocks (IIB).
+
+
+ -----------------------------
+ 3. INHERITANCE RELATIONSHIPS
+  -----------------------------
+  -> The relationship depends on "Who is inheriting Whom".
+  
+  SUMMARY TABLE:
+   ==================================================================
+   |   SOURCE TYPE   |   TARGET TYPE   |       KEYWORD USED         |
+   |-----------------|-----------------|----------------------------|
+   | Class           | Class           | `extends`                  |
+   |-----------------|-----------------|----------------------------|
+   | Interface       | Class           | `implements`               |
+   |-----------------|-----------------|----------------------------|
+   | Interface       | Interface       | `extends`                  |
+   |-----------------|-----------------|----------------------------|
+   | Class           | Interface       | ❌ NOT POSSIBLE            |
+   ==================================================================
+   
+  NOTE on "implements":
+   -> A class can implement MORE THAN ONE interface at a time.
+   -> Syntax: `class A implements I1, I2 { ... }`
+
+
+ -----------------------------
+ 4. TYPES OF INTERFACES
+  -----------------------------
+  
+  1. MARKER INTERFACE
+     -> DEFINITION: An interface that does NOT have any abstract methods.
+     -> PURPOSE: It provides run-time type information to the JVM (e.g.,
+        `Serializable`, `Cloneable`).
+     -> CODE:
+        interface I1 {
+            // No methods here
+        }
+  
+  2. FUNCTIONAL INTERFACE
+     -> DEFINITION: An interface that has EXACTLY ONE abstract method.
+     -> ANNOTATION: `@FunctionalInterface` (Optional but recommended).
+     -> PURPOSE: Used in Lambda Expressions (Java 8 feature).
+     -> CODE:
+        @FunctionalInterface
+        interface I2 {
+            void demo(); // Only one abstract method
+        }
+  
+  3. NORMAL / REGULAR INTERFACE
+     -> DEFINITION: An interface that contains more than one abstract method.
+     -> CODE:
+        interface I3 {
+            void test1();
+            void test2();
+        }
+
+
+ -----------------------------
+ 5. CODE EXAMPLE: IMPLEMENTATION
+  -----------------------------
+  
+  CODE SCENARIO:
+   interface Animal {
+       // Variable is public static final by default
+       int LEGS = 4;
+       
+       // Method is public abstract by default
+       void sound();
+       
+       // Static method (Must have body, accessed by Interface Name)
+       static void info() {
+           System.out.println("This is an Animal Interface");
+       }
+   }
+   
+   class Dog implements Animal {
+       // Must override abstract method
+       @Override
+       public void sound() {
+           System.out.println("Barking...");
+       }
+   }
+   
+   public class Main {
+       public static void main(String[] args) {
+           // Animal a = new Animal(); // ❌ ERROR
+           
+           Dog d = new Dog();
+           d.sound();
+           
+           // Accessing Interface Variable
+           System.out.println("Legs: " + Animal.LEGS);
+           // Animal.LEGS = 5; // ❌ ERROR: Cannot re-initialize final var
+           
+           // Accessing Interface Static Method
+           Animal.info(); 
+       }
+   }
