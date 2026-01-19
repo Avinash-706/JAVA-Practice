@@ -1,0 +1,204 @@
+=============================
+OBJECT CLASS IN JAVA
+ =============================
+
+ -----------------------------
+ 1. OVERVIEW & DEFINITION
+  -----------------------------
+  DEFINITION:
+   -> The `Object` class is the root (super-most) class of the Java class hierarchy.
+   -> Every class in Java (whether user-defined or built-in) directly or
+      indirectly inherits from the `Object` class.
+  
+  KEY PROPERTIES:
+   -> ✅ PACKAGE: It is defined inside the `java.lang` package.
+   -> ✅ INHERITANCE: If a class does not extend any other class, the compiler
+      automatically makes it extend `Object`.
+   -> ✅ METHODS: It provides 11 non-static methods that are common to all
+      Java objects.
+
+
+ -----------------------------
+ 2. THE 11 METHODS OF OBJECT CLASS
+  -----------------------------
+  -> Since every class inherits Object, these methods are available to every
+     Java object.
+  
+  LIST:
+   1. `toString()`
+   2. `hashCode()`
+   3. `equals(Object obj)`
+   4. `getClass()`
+   5. `finalize()` (Deprecated in modern Java)
+   6. `clone()`
+   7. `wait()`
+   8. `wait(long timeout)`
+   9. `wait(long timeout, int nanos)`
+   10. `notify()`
+   11. `notifyAll()`
+
+
+ -----------------------------
+ 3. toString() METHOD
+  -----------------------------
+  DEFINITION:
+   -> Returns the String representation of an object.
+   -> RETURN TYPE: `String`
+   -> DEFAULT BEHAVIOR: Prints `ClassName@HexadecimalHashCode`.
+  
+  WHY OVERRIDE IT?
+   -> The default output (address) is usually meaningless to humans.
+   -> We override it to print the actual DATA (state) of the object (e.g., name, id).
+  
+  CODE EXAMPLE:
+   class Student {
+       String name;
+       int id;
+       
+       Student(String n, int i) { name = n; id = i; }
+       
+       // WITHOUT OVERRIDING:
+       // Output: Student@15db9742
+       
+       // WITH OVERRIDING:
+       @Override
+       public String toString() {
+           return "Name: " + name + ", ID: " + id;
+       }
+   }
+   
+   public class Test {
+       public static void main(String[] args) {
+           Student s = new Student("Alice", 101);
+           System.out.println(s); // Automatically calls s.toString()
+           // Output: Name: Alice, ID: 101
+       }
+   }
+
+
+ -----------------------------
+ 4. equals(Object obj) METHOD
+  -----------------------------
+  DEFINITION:
+   -> Used to compare two objects.
+   -> RETURN TYPE: `boolean`
+  
+  DEFAULT vs. OVERRIDDEN:
+   -> ✅ DEFAULT IMPL: Compares REFERENCE (Address). It works exactly like `==`.
+   -> ✅ OVERRIDDEN IMPL: Compares CONTENT (Data).
+  
+  WHY OVERRIDE IT?
+   -> In business logic, two objects are often considered "equal" if they contain
+      the same data (e.g., two iPhone objects with the same serial number),
+      even if they are stored in different memory locations.
+  
+  TABLE: == OPERATOR vs. equals() METHOD
+   ========================================================================
+   |      FEATURE       |        == OPERATOR        |    equals() METHOD    |
+   |--------------------|---------------------------|-----------------------|
+   | TYPE               | Operator.                 | Method.               |
+   |--------------------|---------------------------|-----------------------|
+   | COMPARISON         | Always compares Address   | Default: Address.     |
+   | (OBJECTS)          | (Reference).              | Overridden: Content.  |
+   |--------------------|---------------------------|-----------------------|
+   | NULL SAFETY        | Safe (null == null is     | Throws NullPointerEx  |
+   |                    | true).                    | if called on null.    |
+   ========================================================================
+
+
+ -----------------------------
+ 5. hashCode() METHOD
+  -----------------------------
+  DEFINITION:
+   -> Returns a unique integer value for the object (based on memory address
+      by default).
+   -> RETURN TYPE: `int`
+  
+  THE CONTRACT (CRITICAL INTERVIEW POINT):
+   -> If `equals()` returns `true` for two objects, their `hashCode()` MUST
+      also be the same.
+   -> If `equals()` returns `false`, their `hashCode()` CAN be the same (Collision).
+  
+  WHY OVERRIDE IT?
+   -> Required for Hashing Collections (HashMap, HashSet, Hashtable).
+   -> If you override `equals()` but not `hashCode()`, these collections will
+      fail to retrieve objects correctly because they look in the wrong "bucket".
+  
+  CODE EXAMPLE (CONTRACT):
+   @Override
+   public boolean equals(Object obj) {
+       // logic to check data equality
+   }
+   @Override
+   public int hashCode() {
+       // logic to generate hash based on SAME data used in equals
+       return this.id; 
+   }
+
+
+ -----------------------------
+ 6. getClass() METHOD
+  -----------------------------
+  DEFINITION:
+   -> Returns the runtime class of the object.
+   -> RETURN TYPE: `Class<?>`
+   -> USAGE: Used for Reflection API to get metadata (methods, fields, constructors)
+      of a class at runtime.
+   -> NOTE: This method is `final`, so it CANNOT be overridden.
+
+
+ -----------------------------
+ 7. clone() METHOD
+  -----------------------------
+  DEFINITION:
+   -> Used to create an exact copy (duplicate) of an object.
+   -> RETURN TYPE: `Object`
+  
+  REQUIREMENTS:
+   -> The class must implement the `Cloneable` interface (Marker Interface).
+   -> If not implemented, it throws `CloneNotSupportedException`.
+  
+  TYPES OF COPYING (EXTRA KNOWLEDGE):
+   1. SHALLOW COPY (Default): Copies references. Changes in the new object's
+      nested objects reflect in the original.
+   2. DEEP COPY: Copies values and creates new nested objects. Must be
+      implemented manually.
+
+
+ -----------------------------
+ 8. THREADING METHODS (wait, notify, notifyAll)
+  -----------------------------
+  DEFINITION:
+   -> Used for Inter-Thread Communication.
+   -> `wait()`: Causes the current thread to release the lock and wait.
+   -> `notify()`: Wakes up a single thread waiting on this object.
+   -> `notifyAll()`: Wakes up all threads waiting on this object.
+  
+  INTERVIEW QUESTION:
+   -> "Why are these methods in Object class and not in Thread class?"
+   -> REASON: These methods work on "Locks" (Monitors). In Java, the Lock
+      belongs to the OBJECT, not the Thread. Every object has a lock, so
+      lock-handling methods must be in the Object class.
+  
+  RULE:
+   -> These methods must be called inside a `synchronized` context, otherwise
+      they throw `IllegalMonitorStateException`.
+
+
+ -----------------------------
+ 9. SUMMARY & INTERVIEW QUESTIONS
+  -----------------------------
+  
+  Q1: CAN WE OVERRIDE getClass()?
+   -> ❌ NO. It is a `final` method.
+  
+  Q2: WHAT IS THE RELATIONSHIP BETWEEN EQUALS AND HASHCODE?
+   -> If `a.equals(b)` is true, then `a.hashCode() == b.hashCode()` MUST be true.
+   -> Failure to follow this breaks HashMap keys.
+  
+  Q3: WHY IS FINALIZE() DEPRECATED?
+   -> It is unpredictable. JVM does not guarantee when (or if) it will run.
+   -> Use `try-with-resources` or `AutoCloseable` instead for cleanup.
+  
+  Q4: DOES OBJECT CLASS HAVE VARIABLES?
+   -> ❌ NO. It only has methods.
