@@ -1,0 +1,947 @@
+=============================
+EXCEPTION HANDLING IN JAVA (MASTER NOTE)
+ =============================
+
+ -----------------------------
+ 1. OVERVIEW & DEFINITION
+ 
+  DEFINITION:
+   -> An EXCEPTION is an UNEXPECTED EVENT that occurs at RUNTIME.
+   -> It disrupts the NORMAL FLOW of program instructions.
+   -> Technically, an Exception is an OBJECT that wraps error information.
+  
+  CORE OBJECTIVES:
+   1. ROBUSTNESS: The program should not crash abruptly.
+   2. FAULT TOLERANCE: The program should handle errors and continue (or exit gracefully).
+   3. SEPARATION OF CONCERNS: Separating error-handling code from regular business logic.
+
+  REAL-LIFE ANALOGY:
+   -> SCENARIO: You are driving to work.
+   -> NORMAL FLOW: Driving on the highway.
+   -> EXCEPTION: A flat tire occurs.
+   -> HANDLING: You stop, change the tire (catch block), and resume driving.
+   -> CRASH (NO HANDLING): You stop the car in the middle of the road and abandon it.
+
+
+ -----------------------------
+ 2. EXCEPTION HIERARCHY
+
+  -> In Java, all exceptions and errors are Objects.
+  
+  TREE STRUCTURE:
+  
+               java.lang.Object
+                     |
+               java.lang.Throwable (ROOT CLASS)
+                     |
+         --------------------------
+         |                        |
+      Error                  Exception
+         |                        |
+   (System Crash)           (Recoverable)
+                                  |
+                     ---------------------------
+                     |                         |
+               Checked Exception       Unchecked Exception
+               (Compile Time)          (Runtime / RuntimeException)
+
+  KEY CLASSES:
+   -> Throwable: The superclass of all errors and exceptions. Only objects of
+      this class can be thrown using `throw` or declared using `throws`.
+   -> Error: Serious system problems (JVM limits) that applications should not
+      try to handle.
+   -> Exception: Conditions that a reasonable application might want to catch.
+
+
+ -----------------------------
+ 3. TYPES OF EXCEPTIONS (IN-DEPTH)
+  
+  A. CHECKED EXCEPTIONS (COMPILE-TIME EXCEPTIONS)
+     -> DEFINITION: Exceptions that are checked by the compiler during compilation.
+     -> RULE: If a method contains code that might throw a checked exception,
+        you MUST handle it (try-catch) or declare it (throws). Otherwise,
+        Compile Time Error.
+     -> WHY?: These represent external factors (File missing, Database down)
+        that are beyond the programmer's logical control.
+     -> EXAMPLES:
+        - `IOException`
+        - `SQLException`
+        - `ClassNotFoundException`
+        - `FileNotFoundException`
+
+  B. UNCHECKED EXCEPTIONS (RUNTIME EXCEPTIONS)
+     -> DEFINITION: Exceptions that are NOT checked by the compiler.
+     -> INHERITANCE: Classes extending `RuntimeException`.
+     -> RULE: Handling is optional. The program compiles even if you don't
+        handle them.
+     -> WHY?: These represent programming logic errors (bad code). You should
+        fix the logic, not just catch the error.
+     -> EXAMPLES:
+        - `ArithmeticException` (Dividing by zero)
+        - `NullPointerException` (Accessing null object)
+        - `ArrayIndexOutOfBoundsException`
+        - `ClassCastException`
+
+  C. ERRORS
+     -> Irrecoverable situations.
+     -> EXAMPLES: `StackOverflowError`, `OutOfMemoryError`.
+
+
+ -----------------------------
+ 4. KEYWORDS & SYNTAX (THE 5 PILLARS)
+  
+  1. try
+     -> Used to enclose "Risky Code" (code that might throw an exception).
+     -> Must be followed by `catch` or `finally`.
+  
+  2. catch
+     -> Used to handle the exception thrown by the `try` block.
+     -> It acts as a safety net.
+  
+  3. finally
+     -> A block that ALWAYS executes, regardless of whether an exception
+        occurred or not.
+     -> Used for "Cleanup Code" (Closing files, DB connections).
+  
+  4. throw
+     -> Used to EXPLICITLY throw an exception object.
+     -> Mostly used for custom exceptions.
+  
+  5. throws
+     -> Used in the method signature to declare that this method MIGHT cause
+        an exception.
+     -> It delegates the responsibility to the caller.
+
+  FULL SYNTAX STRUCTURE:
+   try {
+       // Risky code (e.g., Open File)
+   } 
+   catch (ExceptionType name) {
+       // Handling code (e.g., Print error)
+   } 
+   finally {
+       // Cleanup code (e.g., Close File)
+   }
+
+
+ -----------------------------
+ 5. EXCEPTION FLOW & PROPAGATION
+  -----------------------------
+  THE FLOW:
+   1. An error occurs in a line of code.
+   2. JVM creates an Exception Object.
+   3. JVM checks if the current method has a `catch` block.
+   4. IF YES: The catch block executes.
+   5. IF NO: The method terminates, and the exception is passed (propagated)
+      to the CALLER method (Call Stack).
+   6. This continues until `main()`. If `main()` doesn't handle it, the
+      JVM's "Default Exception Handler" prints the stack trace and kills the thread.
+
+  CODE EXAMPLE (FLOW):
+   public class FlowTest {
+       public static void main(String[] args) {
+           System.out.println("1. Start");
+           try {
+               System.out.println("2. Inside Try");
+               int a = 10 / 0; // 💥 Exception Occurs Here!
+               System.out.println("3. This line is skipped");
+           } 
+           catch (ArithmeticException e) {
+               System.out.println("4. Inside Catch: " + e.getMessage());
+           } 
+           finally {
+               System.out.println("5. Inside Finally (Always runs)");
+           }
+           System.out.println("6. End");
+       }
+   }
+   
+   OUTPUT:
+   1. Start
+   2. Inside Try
+   4. Inside Catch: / by zero
+   5. Inside Finally (Always runs)
+   6. End
+
+
+ -----------------------------
+ 6. COMPARISON TABLES
+  -----------------------------
+
+  TABLE 1: CHECKED vs. UNCHECKED
+   ========================================================================
+   |      FEATURE       |      CHECKED EXC.      |     UNCHECKED EXC.     |
+   |--------------------|------------------------|------------------------|
+   | CHECKED BY         | Compiler.              | JVM (Runtime).         |
+   |--------------------|------------------------|------------------------|
+   | MANDATORY?         | ✅ YES (Handle/Declare)| ❌ NO (Optional).      |
+   |--------------------|------------------------|------------------------|
+   | PARENT CLASS       | Exception (Direct).    | RuntimeException.      |
+   |--------------------|------------------------|------------------------|
+   | EXAMPLE            | IOException.           | NullPointerException.  |
+   ========================================================================
+
+  TABLE 2: THROW vs. THROWS (INTERVIEW FAVORITE)
+   ========================================================================
+   |      FEATURE       |         throw          |         throws         |
+   |--------------------|------------------------|------------------------|
+   | PURPOSE            | To throw an exception  | To declare an exception|
+   |                    | explicitly.            | in method signature.   |
+   |--------------------|------------------------|------------------------|
+   | LOCATION           | Inside method body.    | With method signature. |
+   |--------------------|------------------------|------------------------|
+   | FOLLOWED BY        | An Instance (new Obj). | Class Name(s).         |
+   |--------------------|------------------------|------------------------|
+   | MULTIPLICITY       | Throw 1 object at a    | Declare multiple       |
+   |                    | time.                  | classes.               |
+   |--------------------|------------------------|------------------------|
+   | SYNTAX             | `throw new Ex();`      | `void m() throws Ex`   |
+   ========================================================================
+
+  TABLE 3: FINAL vs. FINALLY vs. FINALIZE
+   ========================================================================
+   |KEYWORD |   TYPE   |                   PURPOSE                        |
+   |--------|----------|--------------------------------------------------|
+   |final   | Modifier | Constant var, un-inheritable class, un-overridable method. |
+   |--------|----------|--------------------------------------------------|
+   |finally | Block    | Executes code (cleanup) ALWAYS after try-catch.  |
+   |--------|----------|--------------------------------------------------|
+   |finalize| Method   | Called by Garbage Collector before destroying obj.|
+   ========================================================================
+
+
+ -----------------------------
+ 7. INTERVIEW IN-DEPTH: MISMATCH & POLYMORPHISM
+  -----------------------------
+  
+  SCENARIO 1: EXCEPTION MISMATCH
+   -> QUESTION: "Suppose the `try` block throws an `ArithmeticException`, but
+      your `catch` block is waiting for a `NullPointerException`. What happens?"
+   
+   -> CODE:
+      try {
+          int x = 10 / 0; // Throws ArithmeticException
+      } catch (NullPointerException e) {
+          System.out.println("Caught");
+      }
+      
+   -> ANSWER:
+      1. The `catch` block acts like a filter. It checks:
+         `Is ArithmeticException instance of NullPointerException?` -> NO.
+      2. The catch block is SKIPPED.
+      3. The program TERMINATES ABNORMALLY (unless there is a parent catch
+         block or outer try-catch).
+  
+  SCENARIO 2: CATCHING PARENT EXCEPTION (POLYMORPHISM)
+   -> QUESTION: "Can I catch `ArithmeticException` using an `Exception` type
+      variable?"
+   
+   -> ANSWER: ✅ YES. Polymorphism applies here.
+   -> REASON: `Exception` is the parent of `ArithmeticException`. A parent
+      reference can hold a child object.
+      
+      try { int x = 10/0; } 
+      catch (Exception e) { ... } // Works! Catch-all handler.
+  
+  SCENARIO 3: UNREACHABLE CODE (ORDER OF CATCH BLOCKS)
+   -> QUESTION: "What happens if I write `catch(Exception e)` FIRST, and
+      `catch(ArithmeticException e)` SECOND?"
+   
+   -> ANSWER: ❌ COMPILE TIME ERROR.
+   -> REASON: The Parent catch block will catch EVERYTHING. The Child catch
+      block below it will never be reached. This is called "Unreachable Code".
+   -> RULE: Always define specific (child) exceptions BEFORE generic (parent) exceptions.
+
+
+ -----------------------------
+ 8. ADVANCED / MISSING TOPICS
+  -----------------------------
+  
+  A. CUSTOM EXCEPTIONS (USER DEFINED)
+     -> Sometimes Java's built-in exceptions aren't specific enough (e.g.,
+        `InsufficientFundsException`).
+     -> HOW: Create a class extending `Exception` (for Checked) or
+        `RuntimeException` (for Unchecked).
+     
+     SYNTAX:
+      class MyError extends RuntimeException {
+          MyError(String msg) { super(msg); }
+      }
+      // Usage: throw new MyError("Something went wrong");
+
+  B. TRY-WITH-RESOURCES (Java 7+)
+     -> Automatic Resource Management (ARM).
+     -> Replaces the need for `finally` block to close resources.
+     -> SYNTAX:
+        try (Scanner sc = new Scanner(System.in)) {
+            // Use scanner
+        } // Scanner auto-closes here!
+  
+  C. MULTI-CATCH BLOCK (Java 7+)
+     -> Handling multiple exceptions in a single catch block to reduce code.
+     -> SYNTAX: `catch (ArithmeticException | NullPointerException e) { ... }`
+
+
+ -----------------------------
+ 9. DEEP DIVE: INTERNAL WORKING & HIERARCHY
+  -----------------------------
+  
+  -----------------------------
+  A. THE "OBJECT" CLASS CONNECTION
+  
+   CONTEXT:
+    -> In Java, EVERY class automatically extends the `Object` class (root parent).
+    -> When you print an object using `System.out.println(ref)`, Java internally
+       calls the `.toString()` method of that object.
+   
+   HOW EXCEPTIONS PRINT MESSAGES:
+    -> When you write `System.out.println(e);` inside a catch block:
+       1. It calls `e.toString()`.
+       2. Since `e` is an Exception, it looks for `toString()` in its hierarchy.
+       3. It finds the `toString()` method in the **`Throwable`** class.
+       4. The `Throwable.toString()` returns the format:
+          `"CurrentClassName: DetailedMessage"`
+   
+    -> EXAMPLE:
+       `java.lang.ArithmeticException: / by zero`
+       (Class Name)                  (Message)
+ 
+  -----------------------------
+  B. MESSAGE PROPAGATION (CONSTRUCTOR CHAINING)
+
+   -> How does the message "divide by zero" reach the top?
+   
+   THE FLOW:
+    1. When `10/0` occurs, JVM creates an object: `new ArithmeticException("/ by zero")`.
+    2. This calls the **ArithmeticException** constructor.
+    3. Inside that, it calls `super(msg)` -> goes to **RuntimeException**.
+    4. Inside that, it calls `super(msg)` -> goes to **Exception**.
+    5. Inside that, it calls `super(msg)` -> goes to **Throwable**.
+    
+   INSIDE THROWABLE:
+    -> The `Throwable` class has a specific field variable:
+       `private String detailMessage;`
+    -> The message "/ by zero" is finally stored in this variable.
+    -> When `toString()` is called later, it reads from this variable.
+ 
+   VISUAL FLOW:
+    [ArithmeticException] -> passes "/ by zero" UP
+            |
+    [RuntimeException]    -> passes "/ by zero" UP
+            |
+    [Exception]           -> passes "/ by zero" UP
+            |
+    [Throwable]           -> STORES IT inside `detailMessage`.
+ 
+  -----------------------------
+  C. POLYMORPHISM IN CATCH BLOCKS
+
+   CONCEPT:
+    -> We know that a **Parent Reference** can hold a **Child Object** (Upcasting).
+    -> `Parent p = new Child();`
+   
+   APPLYING TO EXCEPTIONS:
+    -> Since `Exception` is the parent of `ArithmeticException`, we can do this:
+       
+       try {
+           int x = 10/0; // Throws ArithmeticException Object
+       } 
+       catch (Exception e) { 
+           // This WORKS because Exception (Parent) can hold ArithmeticException (Child)
+           System.out.println("Handled");
+       }
+    
+   THE HIERARCHY CHECK:
+    -> `Object` -> `Throwable` -> `Exception` -> `RuntimeException` -> `ArithmeticException`
+    -> You can use ANY class above `ArithmeticException` to catch it.
+       - `catch(ArithmeticException e)` ✅ (Exact Match)
+       - `catch(RuntimeException e)`    ✅ (Parent)
+       - `catch(Exception e)`           ✅ (Grandparent)
+       - `catch(Throwable e)`           ✅ (Great-Grandparent - Not Recommended)
+ 
+  -----------------------------
+  D. THE "UNREACHABLE CODE" PROBLEM (ORDER MATTERS)
+
+   RULE:
+    -> If you are using multiple catch blocks, you **MUST** catch the **Child (Specific)** exception FIRST, and the **Parent (Generic)** exception LAST.
+   
+   THE LOGIC:
+    -> Java checks catch blocks from Top to Bottom.
+    -> If the Parent catch block is at the top, it will catch EVERYTHING (including children).
+    -> The Child catch block below it will *never* get a chance to run.
+   
+   ❌ WRONG CODE (COMPILE TIME ERROR):
+    try {
+        int a = 10/0;
+    }
+    catch (Exception e) {           // PARENT (Catches everything)
+        System.out.println("Generic Handle");
+    }
+    catch (ArithmeticException e) { // CHILD (Unreachable Code!)
+        System.out.println("Specific Handle");
+    }
+    // ERROR: "Exception has already been caught"
+ 
+   ✅ CORRECT CODE:
+    try {
+        int a = 10/0;
+    }
+    catch (ArithmeticException e) { // CHILD (Checked first)
+        System.out.println("Specific Handle");
+    }
+    catch (Exception e) {           // PARENT (Backup for other errors)
+        System.out.println("Generic Handle");
+    }
+ 
+   SUMMARY KEY:
+    -> Specific exceptions (Subclasses) must always appear BEFORE General exceptions (Superclasses).
+
+
+ -----------------------------
+ 10. STACK TRACE & CALL STACK ANALYSIS
+  -----------------------------
+ 
+  -----------------------------
+  A. WHAT IS A STACK TRACE?
+   
+   DEFINITION:
+    -> A **Stack Trace** is a snapshot of the **Call Stack** at the exact moment
+       an exception occurs.
+    -> It provides a detailed history of method calls, showing the path the
+       execution took to reach the line where the error happened.
+   
+   WHY IS IT CALLED "STACK"?
+    -> Java executes methods using a **Stack Memory** structure (LIFO - Last In, First Out).
+    -> When `main()` calls `level1()`, `level1` is pushed on top of `main`.
+    -> When `level1()` calls `level2()`, `level2` is pushed on top.
+    -> When the exception happens at the TOP, the Stack Trace prints the list
+       from Top (Error location) to Bottom (Origin/Main).
+ 
+   VISUALIZING THE CALL STACK:
+    
+    [ TOP OF STACK - ACTIVE METHOD ]
+    |-----------------------------| 
+    | level3()                    | <--- 💥 Exception happens here (Index 5)
+    |-----------------------------|
+    | level2()                    | <--- Called level3()
+    |-----------------------------|
+    | level1()                    | <--- Called level2()
+    |-----------------------------|
+    | main()                      | <--- Called level1()
+    |-----------------------------|
+    [ BOTTOM OF STACK ]
+ 
+ 
+  -----------------------------
+  B. ANALYZING THE EXCEPTION METHODS
+
+   -> The `Exception` object contains different levels of information.
+   -> You can choose how much detail you want to see or show to the user.
+ 
+   COMPARISON TABLE: PRINTING METHODS
+    ========================================================================
+    |       METHOD        |                 OUTPUT CONTENT                 |
+    |---------------------|------------------------------------------------|
+    | `e.getMessage()`    | Only the Error Message.                        |
+    |                     | (e.g., "Index 5 out of bounds for length 5")   |
+    |---------------------|------------------------------------------------|
+    | `e.toString()`      | Exception Class Name + Error Message.          |
+    |                     | (e.g., "java.lang.AIOOBE: Index 5...")         |
+    |---------------------|------------------------------------------------|
+    | `e.printStackTrace()`| Full Stack Trace (Class + Message + All Lines).|
+    | (Most Used)         | Useful for debugging; shows exact line numbers.|
+    |---------------------|------------------------------------------------|
+    | `e.getStackTrace()` | Returns an **Array** (`StackTraceElement[]`).  |
+    | (Advanced)          | Allows programmatic access to loop through     |
+    |                     | stack details manually.                        |
+    ========================================================================
+ 
+ 
+  -----------------------------
+  C. CODE SCENARIO: PROPAGATION & getStackTrace()
+
+   SCENARIO:
+    -> We create a chain of method calls (`main` -> `level1` -> `level2` -> `level3`).
+    -> `level3` causes an exception.
+    -> We demonstrate how to manually loop through the stack trace using
+       `getStackTrace()` to inspect the error flow programmatically.
+ 
+   CODE:
+    public class StackDemo {
+        
+        public static void main(String[] args) {
+            System.out.println("App Start");
+            try {
+                level1(); // The entry point
+            } catch (Exception e) {
+                System.out.println("\n--- 1. Simple Message ---");
+                System.out.println(e.getMessage());
+ 
+                System.out.println("\n--- 2. Full Stack Trace (Standard) ---");
+                e.printStackTrace(); // Prints to System.err usually
+ 
+                System.out.println("\n--- 3. Manual Trace (Advanced) ---");
+                // Accessing the Stack Trace Array manually
+                StackTraceElement[] stack = e.getStackTrace();
+                
+                for (int i = 0; i < stack.length; i++) {
+                    System.out.println("Step " + i + ": " + stack[i]);
+                    // You can even access specific details:
+                    // System.out.println("File: " + stack[i].getFileName());
+                    // System.out.println("Line: " + stack[i].getLineNumber());
+                }
+            }
+        }
+ 
+        public static void level1() { level2(); }
+ 
+        public static void level2() { level3(); }
+ 
+        public static void level3() {
+            int[] array = new int[5];
+            // 💥 CRASH: Index 5 does not exist
+            array[5] = 10; 
+        }
+    }
+ 
+   OUTPUT EXPLANATION:
+    1. The program enters `main` -> `level1` -> `level2` -> `level3`.
+    2. At `array[5] = 10`, an `ArrayIndexOutOfBoundsException` is thrown.
+    3. Since `level3` has no try-catch, it **PROPAGATES** (drops down) to `level2`.
+    4. `level2` has no catch, it drops to `level1`.
+    5. `level1` has no catch, it drops to `main`.
+    6. `main` HAS a catch block. The exception is caught there.
+    
+    NOTE ON OUTPUT:
+    -> `e.printStackTrace()` will show `level3` at the top (line 30), followed by
+       `level2`, `level1`, and `main`.
+
+
+ -----------------------------
+ 11. THROW vs. THROWS & EXCEPTION PROPAGATION
+  -----------------------------
+
+  -----------------------------
+  A. THROW vs. THROWS (THE DIFFERENCE)
+   
+   -> Based on the transcript:
+      - `throws` (with 's'): "Sir, be careful, this method MIGHT throw an exception."
+      - `throw` (no 's'): "I am FORCEFULLY creating and throwing an exception NOW."
+ 
+    ========================================================================
+    |      FEATURE       |          throw          |         throws         |
+    |--------------------|-------------------------|------------------------|
+    | ACTION             | **Action**: Throws an   | **Declaration**: Warns |
+    |                    | exception explicitly.   | the caller.            |
+    |--------------------|-------------------------|------------------------|
+    | LOCATION           | Inside **Method Body**. | In **Method Signature**|
+    |--------------------|-------------------------|------------------------|
+    | SYNTAX             | `throw new Ex();`       | `void m() throws Ex`   |
+    |--------------------|-------------------------|------------------------|
+    | MULTIPLICITY       | Can throw **ONE**       | Can declare **MANY**   |
+    |                    | exception at a time.    | exceptions (comma sep).|
+    ========================================================================
+ 
+ 
+  -----------------------------
+  B. HANDLING CHECKED vs. UNCHECKED (WITH THROW)
+   
+   -> **The Core Question:** "What happens if I write `throw new Exception()` without `throws`?"
+   
+   CASE 1: UNCHECKED EXCEPTION (e.g., ArithmeticException)
+    -> RULE: You do NOT need to write `throws`.
+    -> REASON: The compiler ignores runtime exceptions.
+    -> CODE:
+       void method() {
+           // ✅ VALID: No 'throws' needed in signature
+           throw new ArithmeticException("oops"); 
+       }
+   
+   CASE 2: CHECKED EXCEPTION (e.g., FileNotFoundException)
+    -> RULE: You MUST handle it.
+    -> OPTION A: Handle with `try-catch`.
+    -> OPTION B: Declare with `throws` in signature.
+    -> CODE:
+       // ❌ INVALID (Compile Error): Unreported exception
+       /*
+       void method() {
+           throw new FileNotFoundException("oops");
+       }
+       */
+ 
+       // ✅ VALID (Option B: Declaration)
+       void method() throws FileNotFoundException {
+           throw new FileNotFoundException("oops");
+       }
+ 
+ 
+  -----------------------------
+  C. EXCEPTION PROPAGATION (THE CHAIN OF RESPONSIBILITY)
+   
+   -> **The Question:** "Is it mandatory to write `throws` in every related method?"
+   -> **The Answer:** YES, for **Checked Exceptions**. It works like a "Hot Potato" game.
+   
+   THE SCENARIO (FROM TRANSCRIPT):
+    1. `method1` creates a `FileReader` (Risky Checked Code).
+       -> It refuses to handle it. It uses `throws FileNotFoundException`.
+    
+    2. `method2` calls `method1`.
+       -> Since `method1` warns of an exception, `method2` is now holding the hot potato.
+       -> `method2` also refuses to handle it. It adds `throws FileNotFoundException`.
+    
+    3. `main` calls `method2`.
+       -> `main` is now holding the hot potato.
+       -> `main` MUST either catch it or throw it.
+       -> If `main` throws it, the JVM handles it (Terminates program).
+ 
+   CODE FLOW:
+    public class ChainDemo {
+        
+        // 3. Main must handle or declare. Here it delegates to JVM.
+        public static void main(String[] args) throws FileNotFoundException {
+            method2(); 
+        }
+ 
+        // 2. method2 calls method1. Since method1 throws Checked, 
+        // method2 must also declare it.
+        public static void method2() throws FileNotFoundException {
+            method1();
+        }
+ 
+        // 1. Origin of Risk. Throws Checked Exception.
+        public static void method1() throws FileNotFoundException {
+            // Forcefully throwing checked exception
+            throw new FileNotFoundException("File missing!"); 
+        }
+    }
+ 
+ 
+  -----------------------------
+  D. RETHROWING AN EXCEPTION (TRY-CATCH-THROW)
+   
+   -> **The Question:** "Do we need to write try-catch and then use THROW?"
+   -> **The Answer:** This is a specific pattern called **Rethrowing**.
+   
+   WHY DO THIS?
+    -> You want to log the error locally (print "File Not Found"), BUT you also
+       want the caller (main method) to know that it failed so the program stops.
+ 
+   CODE EXPLAINED:
+    public static void method1() throws FileNotFoundException {
+        try {
+            // Risky code
+            FileReader f = new FileReader("a.txt");
+        } 
+        catch (FileNotFoundException e) {
+            // 1. Local Handling (Logging)
+            System.out.println("FILE NOT FOUND (Logged internally)");
+            
+            // 2. Rethrowing (Notifying Caller)
+            // We create a NEW exception and throw it out
+            throw new FileNotFoundException("oops"); 
+        }
+    }
+    
+    NOTE: Since we used `throw` inside the catch block (throwing a Checked Exception),
+    the method signature MUST still have `throws FileNotFoundException`.
+
+
+ -----------------------------
+ 12. THE 'FINALLY' BLOCK & RESOURCE MANAGEMENT
+  -----------------------------
+ 
+  A. THE MAGIC OF FINALLY (LOGIC FLOW)
+   
+   DEFINITION:
+    -> The `finally` block is a block of code that **ALWAYS** executes, regardless
+       of whether an exception occurs or is handled.
+   
+   THE CODE SCENARIO (FROM YOUR NOTE):
+    public class Demo {
+        public static int divide(int a, int b) {
+            try {
+                // 1. If exception occurs here...
+                return a / b;
+            }
+            catch (Exception e) {
+                // 2. Control comes here.
+                // 3. It prepares to return -1.
+                return -1;
+            }
+            finally {
+                // 4. BUT WAIT! Before returning -1, this runs.
+                System.out.println("Bye");
+            }
+        }
+ 
+        public static void main(String[] args) {
+            System.out.println(divide(1, 0));
+        }
+    }
+ 
+   EXECUTION FLOW (STEP-BY-STEP):
+    1. `divide(1, 0)` is called.
+    2. `try` block: `1 / 0` throws `ArithmeticException`.
+    3. `catch` block: Catches exception. It encounters `return -1`.
+    4. **CRITICAL STEP:** Java pauses the return process. It looks for a `finally` block.
+    5. `finally` block: Prints "Bye".
+    6. **RESUME:** Now the method actually returns `-1`.
+ 
+   OUTPUT:
+    Bye
+    -1
+ 
+   INTERVIEW GOLD LINE:
+    -> "Does `finally` execute if there is a `return` statement in try or catch?"
+    -> ✅ **YES.** The `finally` block executes **before** the method returns the value.
+ 
+ 
+  -----------------------------
+  B. WHY DO WE NEED FINALLY? (RESOURCE MANAGEMENT)
+   
+   THE PROBLEM (MEMORY LEAKS):
+    -> When we open resources (Files, Scanners, Database Connections), they consume
+       system memory.
+    -> It is the programmer's responsibility to **CLOSE** them.
+    
+   WITHOUT FINALLY (RISKY CODE):
+    Scanner sc = new Scanner(System.in);
+    try {
+        int x = 10 / 0; // 💥 Exception!
+        sc.close();     // ❌ This line is SKIPPED! Resource remains open.
+    } catch (Exception e) {
+        System.out.println("Error");
+    }
+    
+   THE SOLUTION:
+    -> Put the cleanup code (`sc.close()`) in the `finally` block. It guarantees
+       execution even if the app crashes inside `try`.
+ 
+ 
+  -----------------------------
+  C. THE "OLD WAY" (TRADITIONAL RESOURCE CLOSING)
+   
+   -> Before Java 7, closing resources was messy.
+   -> `close()` itself throws an exception (`IOException`), so we needed a
+      **nested try-catch inside the finally block**.
+   
+   CODE (FROM SCREENSHOT 1):
+    BufferedReader reader = null;
+    try {
+        reader = new BufferedReader(new FileReader("example.txt"));
+        // Read file logic...
+    } 
+    catch (IOException e) {
+        System.out.println("Error reading file");
+    } 
+    finally {
+        // 😫 BOILERPLATE CODE just to close a file
+        try {
+            if (reader != null) {
+                reader.close();
+            }
+        } catch (IOException e) {
+            System.out.println("Error closing reader");
+        }
+    }
+ 
+ 
+  -----------------------------
+  D. THE "NEW WAY": TRY-WITH-RESOURCES (JAVA 7+)
+   
+   -> DEFINITION: A feature introduced in Java 7 to automatically manage resources.
+   -> SYNTAX: Declare the resource **INSIDE** the parenthesis `try(...)`.
+   -> REQUIREMENT: The resource class must implement the `AutoCloseable` interface.
+   
+   HOW IT WORKS (TRANSCRIPT EXPLANATION):
+    -> "If you open a resource that implements AutoCloseable, you just put it inside
+       these brackets. Finally didn't run (explicitly), but everything closed automatically."
+   
+   CODE (FROM SCREENSHOT 2 - CLEANER):
+    // The resource is declared inside try()
+    try (BufferedReader reader = new BufferedReader(new FileReader("example.txt"))) {
+        
+        String line;
+        while ((line = reader.readLine()) != null) {
+            System.out.println(line);
+        }
+        // ✨ MAGIC: reader.close() is called automatically here!
+        
+    } catch (IOException e) {
+        System.out.println("Error handled");
+    }
+    
+   ADVANTAGES:
+    1. No need for `finally` block just to close objects.
+    2. No need for nested `try-catch` to handle close errors.
+    3. Code is readable and concise.
+    4. Prevents Memory Leaks automatically.
+ 
+ 
+  -----------------------------
+  E. SUMMARY TABLE: TRADITIONAL vs. TRY-WITH-RESOURCES
+   
+    ========================================================================
+    |      FEATURE       |     TRADITIONAL TRY     |   TRY-WITH-RESOURCES   |
+    |--------------------|-------------------------|------------------------|
+    | SYNTAX             | `try { ... } finally`   | `try (Res r = ...) { }`|
+    |--------------------|-------------------------|------------------------|
+    | CLOSING LOGIC      | Manual (`r.close()`)    | Automatic.             |
+    |--------------------|-------------------------|------------------------|
+    | CODE COMPLEXITY    | High (Nested catches).  | Low (Clean).           |
+    |--------------------|-------------------------|------------------------|
+    | INTRODUCED IN      | Java 1.0                | Java 7.                |
+    |--------------------|-------------------------|------------------------|
+    | INTERFACE REQUIRED | None.                   | `AutoCloseable`.       |
+    ========================================================================
+ 
+   WHEN FINALLY WILL *NOT* EXECUTE:
+    1. `System.exit(0)` is called (JVM Shutdown).
+    2. The JVM crashes (Power failure/OS kill).
+    3. Infinite loop inside the `try` block (Control never reaches finally).
+
+
+ -----------------------------
+ 13. CUSTOM EXCEPTIONS (USER DEFINED)
+  -----------------------------
+ 
+  -----------------------------
+  A. WHY DO WE NEED THEM?
+
+   THE PROBLEM:
+    -> Java provides standard exceptions like `ArithmeticException` (Math errors)
+       or `NullPointerException` (Null errors).
+    -> BUT, Java does NOT understand specific Business Logic errors.
+    -> Example: In a Banking App, `balance < 0` is mathematically valid (negative number),
+       but Business-wise, it is an EXCEPTION.
+   
+   THE SOLUTION:
+    -> We create our own Exception class (e.g., `InsufficientFundsException`) to
+       handle these specific scenarios.
+ 
+ 
+  -----------------------------
+  B. HOW TO CREATE IT (STEP-BY-STEP)
+   
+   STEP 1: CHOOSE THE TYPE
+    -> Do you want it to be CHECKED? Extend `Exception`.
+       (Forces the user to handle it).
+    -> Do you want it to be UNCHECKED? Extend `RuntimeException`.
+       (Optional handling).
+ 
+   STEP 2: DEFINE THE CLASS
+    -> Create a class and define a constructor.
+    -> OPTIONAL: Override `toString()` or call `super(message)` to provide
+       detailed error info.
+ 
+   CODE EXAMPLE (BANKING SYSTEM):
+   
+    // 1. Define the Custom Exception
+    class InsufficientFundsException extends Exception {
+        private double amount;
+ 
+        public InsufficientFundsException(double amount) {
+            this.amount = amount;
+        }
+ 
+        public double getAmount() {
+            return amount;
+        }
+        
+        // Overriding toString to give a custom message when printed
+        @Override
+        public String toString() {
+            return "InsufficientFundsException: Required " + amount 
+                 + " but you are broke! (What do you want? You don't have money)";
+        }
+    }
+ 
+    // 2. Use it in Business Logic
+    class BankAccount {
+        private double balance;
+ 
+        public BankAccount(double amount) {
+            this.balance = amount;
+        }
+ 
+        // We MUST declare 'throws' because we extended 'Exception' (Checked)
+        public void withdraw(double amount) throws InsufficientFundsException {
+            if (amount > balance) {
+                double needs = amount - balance;
+                // Throwing the custom exception instance
+                throw new InsufficientFundsException(needs);
+            }
+            balance -= amount;
+            System.out.println("Withdrawn: " + amount + ", Remaining: " + balance);
+        }
+    }
+ 
+    // 3. Handle it in Main
+    public class Test {
+        public static void main(String[] args) {
+            BankAccount account = new BankAccount(10); // Balance 10
+            try {
+                account.withdraw(11); // Trying to withdraw 11
+            } 
+            catch (InsufficientFundsException e) {
+                System.out.println("Caught Custom Exception:");
+                System.out.println(e); // Calls toString()
+            }
+        }
+    }
+ 
+ 
+  -----------------------------
+  C. THE "THROWS" CONFUSION (POLYMORPHISM)
+   
+   THE QUESTION:
+    -> "Do we really need to write `throws InsufficientFundsException` or can we
+       just write `throws Exception`?"
+   
+   THE ANSWER:
+    -> You CAN write `throws Exception` (Parent Class), but it is **BAD PRACTICE**.
+   
+   WHY?
+    1. SPECIFICITY: If you write `throws Exception`, the caller doesn't know
+       EXACTLY what went wrong. They are forced to catch a generic `Exception`,
+       which might hide other unrelated errors (like NullPointer).
+    2. DOCUMENTATION: Writing `throws InsufficientFundsException` tells other
+       developers explicitly: "This method fails specifically when money is low."
+   
+   RULE:
+    -> Always be as specific as possible in `throws`.
+    -> Use `throws Exception` only if you really don't know what might fail.
+ 
+ 
+  -----------------------------
+  D. SPICY CRISPY INTERVIEW QUESTIONS (LOGIC BENDERS)
+   
+   Q1: CAN I EXTEND 'Throwable' DIRECTLY TO CREATE AN EXCEPTION?
+    -> LOGIC: The hierarchy is Object -> Throwable -> Exception.
+    -> ANSWER: Technically ✅ YES, you can extend `Throwable`.
+    -> TWIST: But you ❌ SHOULD NOT.
+       Why? Because `try-catch` blocks are designed to catch `Exception`.
+       If you extend `Throwable`, a standard `catch(Exception e)` block
+       WILL NOT CATCH IT. You would need `catch(Throwable t)`, which catches
+       System Errors too (Bad practice).
+ 
+   Q2: WHAT HAPPENS IF MY CUSTOM EXCEPTION EXTENDS 'Error'?
+    -> ANSWER: It becomes an **ERROR**, not an Exception.
+    -> CONSEQUENCE: It becomes unchecked, and the JVM treats it like a System
+       Failure (like OutOfMemory). Applications are discouraged from catching it.
+       This effectively creates a "Nuclear Bomb" in your code that shouldn't be caught.
+ 
+   Q3: CAN A CUSTOM EXCEPTION BE ABSTRACT?
+    -> LOGIC: Abstract classes cannot be instantiated.
+    -> ANSWER: ✅ YES, the class can be abstract.
+    -> TWIST: But you cannot `throw` it directly (e.g., `throw new MyAbstractEx()`).
+       You can only throw **subclasses** of it. This is useful for creating
+       categories of errors (e.g., `abstract class DatabaseError`, then `ConnectionError extends DatabaseError`).
+ 
+   Q4: IF I OVERRIDE `toString()` IN MY CUSTOM EXCEPTION, DO I NEED TO PASS THE MESSAGE TO `super()`?
+    -> ANSWER: ❌ NO.
+    -> REASON: If you override `toString()`, `System.out.println(e)` uses your logic.
+    -> HOWEVER: `e.getMessage()` will return `null` if you didn't pass the string
+       to `super(msg)`.
+    -> BEST PRACTICE: Do both. Pass basic msg to `super()` for stack traces,
+       and override `toString()` if you need fancy formatting.
