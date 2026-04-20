@@ -15,7 +15,7 @@
 <tr>
 <td align="center">
 <br />
-<img src="./favicon.png" width="120" height="120" style="border-radius: 50%; object-fit: cover;">
+<img src="../favicon.png" width="120" height="120" style="border-radius: 50%; object-fit: cover;">
 <h3>© 2026 Avinash Dhanuka</h3>
 <p>Master Guide: Java Core & Frameworks</p>
 <p><em>Crafted with ❤️ for Object-Oriented Architecture</em></p>
