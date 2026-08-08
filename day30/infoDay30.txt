@@ -1,0 +1,63 @@
+
+METHOD CHAINING :
+Method Chaining : 
+	Method chaining means calling multiple methods on the same object in a single statement.
+	
+	Each method returns the object so that the next method can be called immediately.
+	
+Instead of calling methods one by one:
+	obj.method1();
+	obj.method2();
+	obj.method3();
+We write:
+	obj.method1().method2().method3();
+This is called method chaining.
+
+Why return this?
+	this refers to the current object.
+	When we return this, the same object is returned so the next method can run on it.	
+	
+Advantages of Method Chaining :
+	Method chaining helps in writing cleaner code.
+	Method chaining reduces the amount of code required.
+	Method chaining makes the code easier to read and understand.
+	Method chaining is commonly used in frameworks and APIs.
+	
+Example : 	
+
+	
+class Student {
+	int id;
+	String name;
+	String city;
+	public Student() {
+		this.id = 0;
+		this.name = "unknown";
+		this.city = "Mumbai";
+	}
+	public Student setId(int id) {
+		this.id = id;
+		return this;
+	}
+	public Student setName(String name) {
+		this.name = name;
+		return this;
+	}
+	public Student setCity(String city) {
+		this.city = city;
+		return this;
+	}
+	@Override
+	public String toString() {
+		return "Student [id=" + id + ", name=" + name + ", city=" + city + "]";
+	}
+	
+}
+public class MethodChaining {
+	public static void main(String[] args) {
+		Student st1 = new Student();
+		System.out.println("assign all the details using method chaining");
+		st1.setId(1).setName("Pawan").setCity("Banaras");
+		System.out.println(st1);
+	}
+}
