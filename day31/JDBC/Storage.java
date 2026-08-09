@@ -7,7 +7,7 @@ public class Storage {
     public static void main(String[] args) {
         String url = "jdbc:mysql://localhost:3306/scott?useSSL=false&allowPublicKeyRetrieval=true";
         String user = "root";
-        String password = "Asansol@0341";
+        String password = "root";
 
         try {
             
