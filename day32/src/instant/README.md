@@ -190,7 +190,7 @@ graph TB
 | **Mutability** | ✅ Immutable | Every operation creates new instance |
 | **Thread Safety** | ✅ Thread-Safe | No synchronization required |
 | **Null Support** | ❌ No Null | Use Optional<Instant> instead |
-| **Date Component** | ❌ No Date | Only epoch seconds + nanos |
+| **Date Component** | ❌ No  Date | Only epoch seconds + nanos |
 | **Time Component** | ❌ No Time | Only epoch seconds + nanos |
 | **Timezone** | ✅ Always UTC | Zero offset from UTC (Z) |
 | **Format** | ISO-8601 UTC | yyyy-MM-ddTHH:mm:ss.SSSSSSSSSZ |
